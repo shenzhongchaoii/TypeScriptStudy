@@ -49,7 +49,7 @@ let octalNum: number = 0o10; // 8
 
 ### String
 
-使用 "" 、''、`` 包围的文本
+使用 "" 、''、`` 包围的字符串类型
 
 ```typescript
 let str1: string = "string1";
@@ -63,7 +63,7 @@ let str3: string = `string3`;
 
 ```typescript
 let isDoing: boolean = true;
-let isDoing: boolean = false;
+let isDone: boolean = false;
 ```
 
 ### 字面量
@@ -171,5 +171,51 @@ fn(null);
 
 ### Array
 
+元素类型单一的数组
 
+```typescript
+// 1. 直接在元素类型后加上[]：元素类型[]
+let list: number[] = [1, 2, 3];
+// 2. 使用数组泛型：Array<元素类型>
+// let list: Array<number> = [1, 2, 3];
+```
+
+### Tuple
+
+元组，已知长度、多种类型的数组
+
+```typescript
+let tupleList: [number, string] = [1, '2'];
+```
+
+### Enum
+
+枚举类型，TypeScript 对 JavaScript 标准数据类型的补充
+
+```typescript
+// 默认情况下，元素从0开始开始编号
+enum Color { Red, Green, Blue }
+
+// 也可以手动编号
+// enum Color { Red = 0, Green = 1, Blue = 4 }
+let numVal: number = Color.Red;
+console.log(numVal) // 0
+console.log(typeof numVal) // number 
+
+let strVal: string = Color[1];
+console.log(strVal) // Green
+console.log(typeof strVal) // string
+```
+
+### 类型断言
+
+类型断言就像是类型转换，但不会进行特殊的数据检查和解构。相当于告诉ts编译器，程序员已经进行了类型检查，不需要再检查了。
+
+```
+let someVal: any = "这是一个字符串";
+// 1. 尖括号语法（jsx中，不允许尖括号语法）
+let strLen: number = (<string>someVal).length;
+// 2. as 语法
+// let strLen: number = (someVal as string).length;
+```
 
