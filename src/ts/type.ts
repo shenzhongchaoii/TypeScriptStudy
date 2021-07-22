@@ -95,17 +95,29 @@ const endlessLoop = (): never => {
 
 // -
 // 9. Object
-const fnfn = (o: object | null) => {
-	// todo this
+type ObjectType = { name: string, age: number, address?: string };
+let obj1: ObjectType = {
+    name: '张三',
+    age: 18
 }
-
-fnfn({ test: 'hello world' });
-fnfn(null);
+let obj2: ObjectType = {
+  name: '张三',
+  age: 18,
+  address: 'xxx地址'
+}
 
 
 // -
 // 10. Array
 let list: number[] = [1, 2, 3]; // let list: Array<number> = [1, 2, 3];
+// readonlyArray
+let numberList: number[] = [1, 2];
+let readonlyNumberList: ReadonlyArray<number> = numberList;
+// readonlyNumberList[0] = 10; // 类型“readonly number[]”中的索引签名仅允许读取。
+
+// 可以使用类型断言重写
+let numberList2 = readonlyNumberList as number[];
+console.log(numberList2)
 
 
 // -

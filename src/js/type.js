@@ -68,16 +68,25 @@ var endlessLoop = function () {
         // todo this
     }
 };
-// -
-// 9. Object
-var fnfn = function (o) {
-    // todo this
+var obj1 = {
+    name: '张三',
+    age: 18
 };
-fnfn({ test: 'hello world' });
-fnfn(null);
+var obj2 = {
+    name: '张三',
+    age: 18,
+    address: 'xxx地址'
+};
 // -
 // 10. Array
 var list = [1, 2, 3]; // let list: Array<number> = [1, 2, 3];
+// readonlyArray
+var numberList = [1, 2];
+var readonlyNumberList = numberList;
+// readonlyNumberList[0] = 10; // 类型“readonly number[]”中的索引签名仅允许读取。
+// 可以使用类型断言重写
+var numberList2 = readonlyNumberList;
+console.log(numberList2);
 // -
 // 11. Tuple
 var tupleList = [1, '2'];
