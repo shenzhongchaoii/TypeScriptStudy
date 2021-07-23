@@ -900,7 +900,7 @@ fnc2(); // 30
 
 ```typescript
 function fnc(this: void) {
-	console.log(this); // 这里是一个假参数，undefined
+  console.log(this); // 这里是一个假参数，undefined
 }
 
 interface OtherMyIntf {
@@ -921,7 +921,79 @@ let my: MyIntf = {
     }
   }
 }
-console.log((my.createFn())()); // { val: 100 }
+const myFn = my.createFn();
+console.log(myFn()); // { val: 100 }
 ```
 
 #### this 参数在回调函数中 
+
+将一个函数传递到某个库函数里稍后会被调用时， 当回调被调用的时候，它们会被当成一个普通函数调用， this 为 undefined
+
+```typescript
+interface UIElementIntf {
+  addClickListener(onclick: (this: void, e: Event) => void): void;
+}
+
+class UIElement implements UIElementIntf {
+  addClickListener(onClick: (this: void, e: Event) => void) {
+
+  }
+}
+
+let uIElement = new UIElement();
+
+class Handler {
+  info: string = 'info';
+  onClick(this: Handler, e: Event) {
+    console.log(this.info); // info
+  }
+}
+let h = new Handler();
+// uIElement.addClickListener(h.onClick); // 每个签名的 "this" 类型不兼容，不能将类型“void”分配给类型“Handler”
+
+class Handler2 {
+  info: string = 'info';
+  onClick(this: void, e: Event) {
+    console.log(this.info); // 类型“void”上不存在属性“info”
+  }
+}
+let h2 = new Handler2();
+uIElement.addClickListener(h2.onClick);
+
+class Handler3 {
+  info: string = 'info';
+  onClick = (e: Event) =>  {
+    console.log(this.info); // info
+  }
+}
+let h3 = new Handler3();
+uIElement.addClickListener(h3.onClick);
+```
+
+### 重载
+
+JavaScript是一门动态语言，JavaScript里函数根据传入不同的参数而返回不同类型的数据是很常见的。当然在JavaScript中，后面声明的重名函数会覆盖前面的声明，通常是来函数体内进行一系列的判断来实现。
+
+TS中通过为同一个函数提供多个函数类型定义来进行函数重载，编译器会根据已声明的函数声明列表来查找符合来处理函数的调用，一定要把最精确的定义放在最前面。
+
+```typescript
+interface Person {
+  name: string;
+  age: number;
+}
+
+// 重载列表
+function getPerson(name: string): Person['name'];
+function getPerson(age: number): Person['age'];
+function getPerson(person: Person): Person;
+
+// 声明实现
+function getPerson(person: unknown) {
+  return person;
+}
+console.log(getPerson('张三')); // 张三
+console.log(getPerson(18)); // 18
+console.log(getPerson(true)); // 报错，重载的实现签名不存在，重载列表中未找到对应的声明
+console.log(getPerson({ name: '张三', age: 18 })); //{ name: '张三', age: 18 }
+```
+

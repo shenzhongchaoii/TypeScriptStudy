@@ -83,4 +83,67 @@ let my: MyIntf = {
     }
   }
 }
-console.log((my.createFn())()); // { val: 100 }
+const myFn = my.createFn();
+console.log(myFn()); // { val: 100 }
+
+// this 在回调函数内
+interface UIElementIntf {
+  addClickListener(onclick: (this: void, e: Event) => void): void;
+}
+
+class UIElement implements UIElementIntf {
+  addClickListener(onClick: (this: void, e: Event) => void) {
+
+  }
+}
+
+let uIElement = new UIElement();
+
+class Handler {
+  info: string = 'info';
+  onClick(this: Handler, e: Event) {
+    console.log(this.info); // info
+  }
+}
+let h = new Handler();
+// uIElement.addClickListener(h.onClick); // 每个签名的 "this" 类型不兼容，不能将类型“void”分配给类型“Handler”
+
+class Handler2 {
+  info: string = 'info';
+  onClick(this: void, e: Event) {
+    console.log(this.info); // 类型“void”上不存在属性“info”
+  }
+}
+let h2 = new Handler2();
+uIElement.addClickListener(h2.onClick);
+
+class Handler3 {
+  info: string = 'info';
+  onClick = (e: Event) =>  {
+    console.log(this.info); // info
+  }
+}
+let h3 = new Handler3();
+uIElement.addClickListener(h3.onClick);
+
+
+// -
+// 6. 重载
+interface Person {
+  name: string;
+  age: number;
+}
+
+// 重载列表
+function getPerson(name: string): Person['name'];
+function getPerson(age: number): Person['age'];
+function getPerson(person: Person): Person;
+
+// 声明实现
+function getPerson(person: unknown) {
+  return person;
+}
+console.log(getPerson('张三')); // 张三
+console.log(getPerson(18)); // 18
+console.log(getPerson(true)); // 报错，重载的实现签名不存在，重载列表中未找到对应的声明
+console.log(getPerson({ name: '张三', age: 18 })); //{ name: '张三', age: 18 }
