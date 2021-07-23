@@ -2,6 +2,19 @@
 
 
 
+## 开始
+
+```javascript
+安装
+npm install -g typescript
+
+初始化配置
+tsc --init
+
+编辑
+tsc xxx.ts
+```
+
 
 
 ## 基础类型
