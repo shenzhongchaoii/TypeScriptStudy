@@ -738,3 +738,190 @@ let t: BIntf = {
 }
 ```
 
+
+
+## 函数
+
+函数是JavaScript的基础，可以用来实现抽象层、模拟类、信息隐藏和模块
+
+可以创建有名字的普通函数和匿名函数
+
+```javascript
+function fn1() {
+
+}
+const fn2 = function() {
+  
+}
+```
+
+### 闭包
+
+函数和函数内部能够访问到的变量的环境，就是一个闭包
+
+闭包常常用来「间接访问一个变量」。换句话说，「隐藏一个变量」
+
+```javascript
+function foo() {
+  // bar() 与 val 就形成一个闭包
+  // ---
+  var val = 1;
+  function bar() {
+    return val ++;
+  }
+  // ---
+    
+  return bar;
+}
+```
+
+### 函数类型
+
+函数类型包括参数类型和返回值类型
+
+```typescript
+// 函数类型
+let fooType: (a: number, b: number) => number;
+
+// 完整函数类型
+let foo1: (arg1: number, arg2: number) => number = function (a: number, b: number) {
+  return a + b;
+}
+
+// 函数类型推断
+let foo2: (arg1: number, arg2: number) => number = function (a, b) {
+  return a + b;
+}
+```
+
+### 可选参数与默认参数
+
+#### 可选参数
+
+TS函数类型中每个参数都是必需（有没有值传递入函数）；而JavaScript中，每个参数都是可选的，不传则值为undefined
+
+TS中通过在参数名跟**<u>?</u>**来实现可选参数，可选参数必须位于必选参数后
+
+```typescript
+function bar(a: number, b?: number) {
+  if (typeof b == 'number') {
+    return a + b;
+  }
+  return a;
+}
+console.log(bar(1)); // 1
+console.log(bar(1, 2)); // 3
+```
+
+#### 默认参数
+
+声明函数时，带有默认值的参数就是默认参数。当用户没有传递这个参数或传递的值是`undefined`时，参数会取默认值
+
+1. 当默认参数位于必须参数后时，调用函数时可以省略默认参数
+2. 当默认参数位于必须参数前是，调用函数时不可以省略默认参数（可以传递默认值或undefined来取默认值）
+
+```typescript
+function bar2(a: number, b = 2) {
+  return a + b;
+}
+console.log(bar2(1)); // 3
+console.log(bar2(1, undefined)); // 3
+```
+
+### 剩余参数
+
+JavaScript中，可以使用 **<u>arguments</u>** 来访问所有传入的参数，也可以在声明函数时，使用 **<u>...（扩展运算符</u>** 收集剩余参数列表
+
+TS中，由于必须参数都必须传入，所以arguments的作用实际不大，同样可以使用 **<u>...（扩展运算符</u>** 收集剩余参数列表
+
+剩余参数会被当成不限个数的可选参数
+
+```typescript
+function baz(a: string, b: string, ...other: string[]) {
+  console.log(arguments); // [Arguments] { '0': '1', '1': '2', '2': '3', '3': '4', '4': '5' }
+  console.log(other); // [ '3', '4', '5' ]
+  console.log(`${a}, ${b}, ${other.join(', ')}`); // 1, 2, 3, 4, 5
+}
+
+baz('1', '2', '3', '4', '5')
+```
+
+### this 和箭头函数
+
+普通函数的 this 指向运行时所在的作用域，即this 对象的指向随着使用的作用域不同而不同
+
+箭头函数的 this 指向绑定定义时所在的作用域，this 对象固定不变
+
+```JavaScript
+// .js 文件
+const te = {
+    val1: 10,
+    val2: 20,
+    createFn: function () {
+        return function () {
+            console.log(this.val1 + this.val2);
+        }
+    }
+}
+
+let fnc = te.createFn();
+fnc(); // 此时 this 指向window对象（严格模式，this 为 undefined），Cannot read property 'val1' of undefined
+
+
+const te1 = {
+    val1: 10,
+    val2: 20,
+    createFn: () => {
+        return  () => {
+          // 由于createFn也用了箭头函数，此时的this执行createFn的{}
+          console.log(this.val1 + this.val2);
+        }
+    }
+}
+
+let fnc1 = te1.createFn();
+fnc1(); // NaN
+
+const te2 = {
+  val1: 10,
+  val2: 20,
+  createFn: function() {
+      return  () => {
+        console.log(this.val1 + this.val2);
+      }
+  }
+}
+
+let fnc2 = te2.createFn();
+fnc2(); // 30
+```
+
+#### this 作为参数
+
+```typescript
+function fnc(this: void) {
+	console.log(this); // 这里是一个假参数，undefined
+}
+
+interface OtherMyIntf {
+  val: number;
+}
+interface MyIntf {
+  num: number;
+  createFn(this: MyIntf): () => OtherMyIntf // 这里直接表明 this 的类型是 MyIntf
+}
+
+let my: MyIntf = {
+  num: 100,
+  createFn: function(this: MyIntf) { // 这里直接表明 this 的类型是 MyIntf
+    return () => {
+      return {
+        val: this.num // 所以可以直接使用 MyIntf 的 num
+      }
+    }
+  }
+}
+console.log((my.createFn())()); // { val: 100 }
+```
+
+#### this 参数在回调函数中 
