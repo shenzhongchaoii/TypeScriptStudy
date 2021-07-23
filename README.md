@@ -5,14 +5,16 @@
 ## 开始
 
 ```javascript
-安装
+// 安装TypeScript
 npm install -g typescript
 
-初始化配置
+// 初始化配置
 tsc --init
 
-编辑
-tsc xxx.ts
+// 编译（加上文件名，则仅编译单个文件）
+tsc
+// 监听编译
+tsc -w
 ```
 
 
@@ -506,6 +508,233 @@ class Button extends Control implements CtlIntf {
 
 class TextBox extends Control {
   select() { }
+}
+```
+
+
+
+## 类
+
+使用 class 定义，变量与作用于这些变量的函数的集合，就叫做类
+
+类定义会创建两个东西：类的实例类型和一个构造函数，即声明了一个类的同时，会同时声明了 **<u>类的实例的类型</u>**（如 ***let c: ClassType;***）、构造函数的值（与类同名，如 ***c = new ClassType();*** 中的 ***ClassType***）
+
+```typescript
+class ClassType {
+  memberProp: unknown; // 成员属性
+
+  constructor() { // 构造器
+     // ...
+  }
+
+  memberFn() { // 成员方法
+    // ...
+  }
+}
+let myClass: ClassType; // 类的实例类型 ClassType
+myClass = new ClassType(); // 构造函数 ClassType
+let myClassConstructor: typeof ClassType = ClassType; // 构造函数的类型，相当于对类起别名
+```
+
+### 继承
+
+被继承的类通常叫做**<u>基类</u>**、**<u>超类</u>**、**<u>父类</u>**，继承的类叫做**<u>派生类</u>**、**<u>子类</u>**
+
+当派生类包含了一个构造函数（基类带有构造函数）时，派生类的构造函数内必须使用 **<u>super()</u>**来执行基类的构造函数
+
+```typescript
+class BaseClass {
+  name: string;
+  constructor(n: string) {
+    this.name = n;
+  }
+}
+
+class SubClass extends BaseClass {
+  constructor(n: string) {
+    super(n);
+    this.name = n + n;
+  }
+  setName(newName: string) {
+    this.name = newName;
+  }
+}
+
+let subClass = new SubClass('subClass');
+console.log(subClass);
+subClass.setName('new name');
+console.log(subClass);
+```
+
+### 公共、私有、受保护、只读的修饰符
+
+| 修饰符    | 说明                                         |
+| --------- | -------------------------------------------- |
+| public    | 默认的，公共的                               |
+| private   | 私有的，仅能在类内部访问                     |
+| protected | 受保护的，仅能在类及类的派生类中访问         |
+| readonly  | 只读属性，仅能在声明时或者构造函数中被初始化 |
+
+**注意：构造函数也可以被标记为protected，这意味着这个类不能在包含它的类外部被实例化，但可以被继承**
+
+```typescript
+class ClassName {
+  public name: string = '张三';
+  private age: number = 18;
+    
+  readonly oldName: string = '张小三';
+  
+  // 标记构造函数为受保护，该类只能被继承，无法被实例化
+  protected constructor() {
+      
+  }
+
+  protected resetName(newName: string) {
+      this.name = newName;
+      this.oldName = newName; // 报错，只读属性
+  }
+}
+
+class SubClassName extends ClassName {
+  constructor () {
+    super();
+
+    this.name = '';
+    // this.age = 20;
+    this.resetName('李四');
+  }
+}
+
+let class1 = new ClassName(); // 报错，类“ClassName”的构造函数是受保护的，仅可在类声明中访问
+let class2 = new SubClassName();
+class2.oldName = '李四'; // 报错，只读属性
+```
+
+
+
+#### 参数属性
+
+参数属性通过给构造函数参数前增加一个访问限定符来声明，此时声明并初始化一个成员（修饰符与访问限定符一致）
+
+```typescript
+class ClassName2 {
+  constructor(protected readonly name: string) {
+
+  }
+}
+```
+
+### 存取器
+
+TS支持通过getters/setters来截取，从而有效的控制对对象成员的访问
+
+存取器要求编辑器输出版本（compilerOptions.target）不能低于ECMAScript5，当只有 get 没有 set时，自动推断设置为 readonly
+
+```typescript
+let employeeName: string = '张三';
+class Employee {
+  private _bankAccount: string = '银行卡号';
+  private _money: number = 1e8;
+
+  get bankAccount(): string {
+    if (employeeName&& employeeName == '张三') {
+      return this._bankAccount;
+    }
+    return '你不是张三'
+  }
+
+  get money(): number {
+    if (employeeName&& employeeName == '张三') {
+      return this._money;
+    }
+    return 0
+  }
+
+  set money(newMoney: number) {
+    this._money = newMoney;
+  }
+}
+
+let e = new Employee();
+
+e.bankAccount = '新银行卡号'; // 报错，只读属性
+console.log(e.bankAccount); // 银行卡号
+e.money = 1e7;
+console.log(e.money); // 10000000
+
+employeeName = '李四';
+console.log(e.bankAccount); // 你不是张三
+```
+
+### 静态属性
+
+使用**<u>static</u>**修饰成员，仅存在于类本身而非类的实例上
+
+```typescript
+class TestClass2 {
+  static staticProp: string = '静态成员属性';
+}
+let tC = new TestClass2();
+console.log(TestClass2.staticProp); // 类本身访问静态属性，可以
+console.log(tC.staticProp); // 类实例访问静态属性，不可以
+```
+
+### 抽象类与抽象方法
+
+使用**<u>abstract</u>**定义的类为抽象类，抽象类作为其他派生类的基类使用，无法被实例化
+
+在抽象类内部使用**<u>abstract</u>**定义的成员方法为抽象方法，抽象方法不包含具体实现并且必须在派生类中实现
+
+```typescript
+abstract class AbstractClass {
+  abstract test(): void;
+  
+  test2(): void {
+    console.log('123')
+  }
+}
+
+let ac = new AbstractClass(); // 报错，抽象类无法被实例化
+```
+
+#### 抽象类 VS 接口
+
+不同于接口，抽象类中可以包含成员的实现细节
+
+#### 抽象方法 VS 接口方法
+
+两者相似，都只是定义了方法签名而不包含方法体；不同于接口方法，抽象方法必须使用**<u>abstract</u>**定义且可以包含访问修饰符
+
+```typescript
+class Derivedclass  extends AbstractClass{
+  constructor() {
+    super();
+  }
+
+  test() {
+    console.log('抽象类中抽象方法在派生类中必须被实现');
+  }
+}
+let dc = new Derivedclass(); // 抽象类的派生类可以被实例化
+```
+
+### 把类当接口使用
+
+类定义会创建两个东西：类的实例类型和一个构造函数。因此，可以在允许使用接口的地方使用类（类类型）
+
+```typescript
+class BClass {
+  readonly x: number = 1;
+  readonly y: number = 2;
+}
+interface BIntf extends BClass {
+  readonly z: number;
+}
+
+let t: BIntf = {
+  x: 10,
+  y: 20,
+  z: 30
 }
 ```
 
