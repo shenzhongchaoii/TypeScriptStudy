@@ -247,8 +247,6 @@ console.log(strLen); // 7
 
 
 
-
-
 ## 接口
 
 
@@ -280,12 +278,17 @@ printLabel(labelObj); // { message: '使用定义的 LabelIntf 接口', label1: 
 
 ### 可选属性
 
-接口里（Object对象类型中也一样）的属性不全都是必需的，有些是只在某些条件下存在或者不充值。
+接口里（Object对象类型中也一样）的属性不全都是必需的，有些是只在某些条件下存在或者不充值。使用 <u>**?:**</u>
 
 ```typescript
+// 另外还可以使用字符串签名
+// interface Intf {
+//   [propName: string]: any; // 可以表示任意类型的属性
+// }
+
 interface SquareConfig {
     color?: string;
-    width: number;
+    width?: number;
 }
 
 const createSquare = (config: SquareConfig): { color: string; area: number } => {
@@ -325,3 +328,171 @@ p.x = 5; // 无法分配到 "x" ，因为它是只读属性
 #### readonly VS const
 
 作为变量使用就使用 const 来定义，作为属性则使用 readonly 修饰。
+
+### 函数类型
+
+一个只有参数列表和返回值类型的函数定义。参数列表里的每个参数都需要名字和类型
+
+```typescript
+interface SearchFn {
+  (arg1: number, arg2: number): number;
+}
+
+// 函数的参数会逐个检查，要求对应位置的参数类型一致（参数名字在函数类型可以不一致，此外类型也会自动推断），返回值类型要一致
+const searchFn: SearchFn = (a: number, b) => {
+  return a + b;
+}
+```
+
+### 可索引类型
+
+可索引类型具有一个索引签名，它描述了对象索引的类型及对应的返回值类型。
+
+ts支持两种签名：字符串和数字
+
+可以同时使用，但此时数字索引的返回值类型必须是字符串索引返回值类型的子类型
+
+```typescript
+// 定义一个元素值为字符串的数组类型接口
+interface ReadonlyIntf1 {
+  readonly [index: number]: number;
+}
+let arr: ReadonlyIntf1 = [1, 2];
+arr[1] = 3; // 类型“ReadonlyIntf1”中的索引签名仅允许读取
+arr[2] = 3; // 类型“ReadonlyIntf1”中的索引签名仅允许读取
+
+// 定义一个元素值为数值的数组类型接口
+interface ReadonlyIntf2 {
+  readonly [index: string]: string;
+}
+let obj: ReadonlyIntf2 = { prop1: 'prop1Val', prop2: 'prop2Val' };
+
+// 同时使用两种签名
+interface MixinsIntf2 {
+  // 数字索引的返回值类型只能是字符串索引的返回值类型的子类型
+  [index: number]: number; // 数字索引类型“number”不能赋给字符串索引类型“string”
+  [index: string]: string;
+}
+```
+
+### 类类型
+
+符合某种限制的类，通常是通过 **<u>implements</u>** 实现定义好的接口类型来限制类
+
+接口描述了类的公共部分，不包括私有部分，只会检查类的公共成员
+
+```typescript
+interface ClockIntf {
+  setCurrentTime: (d: Date) => void;
+  getCurrentTime(d: Date): string;
+}
+
+class Clock implements ClockIntf {
+  private currentTime: Date;
+
+  constructor () {
+    this.currentTime = new Date();
+  }
+
+  setCurrentTime() {
+    this.currentTime = new Date();
+  }
+
+  getCurrentTime() {
+    const hours = this.currentTime.getHours() <= 9 ? '0' + this.currentTime.getHours() : this.currentTime.getHours();
+    const minutes = this.currentTime.getMinutes() <= 9 ? '0' + this.currentTime.getMinutes() : this.currentTime.getMinutes();
+    return `${hours}:${minutes}`;
+  }
+}
+```
+
+##### 类静态部分与实例部分的区别
+
+一个类实现了一个接口时，ts只会检查类的实例部分，不会检查静态部分（如constructor）
+
+```typescript
+// 不能直接操作静态部分
+interface ClockConstructor {
+  new (d: Date): ClockIntf
+}
+// 使用函数参数检查来检查类的静态部分
+function createClockClass(ClockClass: ClockConstructor, d: Date): ClockIntf {
+  return new ClockClass(d)
+}
+// createClockClass的第一个参数为构造器签名ClockConstructor，此时会检查Clock是否符合ClockConstructor，从而间接实现了类的静态部分检查
+let clock = createClockClass(Clock, new Date())
+```
+
+### 继承接口
+
+与类之间的继承（**<u>extends</u>**）一样，接口可以相互继承。方便接口切割到可重用的模块里，创建合成接口
+
+```typescript
+interface ShapeIntf {
+  sType: string;
+}
+interface ColorIntf {
+  cType: string
+}
+
+interface SquareIntf extends ShapeIntf, ColorIntf {
+  width?: number;
+  message: string;
+}
+
+let newSquare = <SquareIntf>{};
+newSquare.sType = 'square';
+newSquare.cType = 'red';
+```
+
+### 混合类型
+
+有时希望一个对象可以同时具有上面提到的多种类型，比如一个对象同时可以作为函数和对象使用，并带有额外的属性
+
+```typescript
+interface Counter {
+  (start: number): string;
+  num: number;
+  reset(): void;
+}
+
+function getCounter(): Counter {
+  let counter = <Counter>function (start: number) {
+    counter.num = start
+  }
+  counter.reset = () => {
+    counter.num = 0
+  }
+
+  return counter
+}
+
+let c = getCounter()
+c(100)
+c.reset()
+```
+
+### 接口继承类
+
+当接口继承了一个类类型时，会继承类的成员（所有，public、protected、private）但不包括其实现
+
+一个接口继承了一个带有私有或受保护的成员的类时，这个接口类型只能被这个类的子类所实现
+
+```typescript
+class Control {
+  private state: unknown;
+}
+
+interface CtlIntf extends Control {
+  select(): void;
+}
+
+class Button extends Control implements CtlIntf {
+  select() {}
+}
+
+class TextBox extends Control {
+  select() { }
+}
+```
+
