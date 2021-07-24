@@ -291,6 +291,8 @@ let labelObj = {
 printLabel(labelObj); // { message: '使用定义的 LabelIntf 接口', label1: 'label1', label2: 'label2' }
 ```
 
+
+
 ### 可选属性
 
 接口里（Object对象类型中也一样）的属性不全都是必需的，有些是只在某些条件下存在或者不充值。使用 <u>**?:**</u>
@@ -326,6 +328,8 @@ let square = createSquare({ color: 'black' })
 console.log(square); // { color: 'black', area: 100 }
 ```
 
+
+
 ### 只读属性
 
 当接口属性中含有 readonly 修饰符时，对象仅能在刚刚创建的时候修改值
@@ -344,6 +348,8 @@ p.x = 5; // 无法分配到 "x" ，因为它是只读属性
 
 作为变量使用就使用 const 来定义，作为属性则使用 readonly 修饰。
 
+
+
 ### 函数类型
 
 一个只有参数列表和返回值类型的函数定义。参数列表里的每个参数都需要名字和类型
@@ -358,6 +364,8 @@ const searchFn: SearchFn = (a: number, b) => {
   return a + b;
 }
 ```
+
+
 
 ### 可索引类型
 
@@ -389,6 +397,8 @@ interface MixinsIntf2 {
   [index: string]: string;
 }
 ```
+
+
 
 ### 类类型
 
@@ -438,6 +448,8 @@ function createClockClass(ClockClass: ClockConstructor, d: Date): ClockIntf {
 let clock = createClockClass(Clock, new Date())
 ```
 
+
+
 ### 继承接口
 
 与类之间的继承（**<u>extends</u>**）一样，接口可以相互继承。方便接口切割到可重用的模块里，创建合成接口
@@ -459,6 +471,8 @@ let newSquare = <SquareIntf>{};
 newSquare.sType = 'square';
 newSquare.cType = 'red';
 ```
+
+
 
 ### 混合类型
 
@@ -487,6 +501,8 @@ c(100)
 c.reset()
 ```
 
+
+
 ### 接口继承类
 
 当接口继承了一个类类型时，会继承类的成员（所有，public、protected、private）但不包括其实现
@@ -513,6 +529,8 @@ class TextBox extends Control {
 
 
 
+
+
 ## 类
 
 使用 class 定义，变量与作用于这些变量的函数的集合，就叫做类
@@ -535,6 +553,8 @@ let myClass: ClassType; // 类的实例类型 ClassType
 myClass = new ClassType(); // 构造函数 ClassType
 let myClassConstructor: typeof ClassType = ClassType; // 构造函数的类型，相当于对类起别名
 ```
+
+
 
 ### 继承
 
@@ -565,6 +585,8 @@ console.log(subClass);
 subClass.setName('new name');
 console.log(subClass);
 ```
+
+
 
 ### 公共、私有、受保护、只读的修饰符
 
@@ -610,8 +632,6 @@ let class2 = new SubClassName();
 class2.oldName = '李四'; // 报错，只读属性
 ```
 
-
-
 #### 参数属性
 
 参数属性通过给构造函数参数前增加一个访问限定符来声明，此时声明并初始化一个成员（修饰符与访问限定符一致）
@@ -623,6 +643,8 @@ class ClassName2 {
   }
 }
 ```
+
+
 
 ### 存取器
 
@@ -666,6 +688,8 @@ employeeName = '李四';
 console.log(e.bankAccount); // 你不是张三
 ```
 
+
+
 ### 静态属性
 
 使用**<u>static</u>**修饰成员，仅存在于类本身而非类的实例上
@@ -678,6 +702,8 @@ let tC = new TestClass2();
 console.log(TestClass2.staticProp); // 类本身访问静态属性，可以
 console.log(tC.staticProp); // 类实例访问静态属性，不可以
 ```
+
+
 
 ### 抽象类与抽象方法
 
@@ -718,6 +744,8 @@ class Derivedclass  extends AbstractClass{
 let dc = new Derivedclass(); // 抽象类的派生类可以被实例化
 ```
 
+
+
 ### 把类当接口使用
 
 类定义会创建两个东西：类的实例类型和一个构造函数。因此，可以在允许使用接口的地方使用类（类类型）
@@ -740,6 +768,8 @@ let t: BIntf = {
 
 
 
+
+
 ## 函数
 
 函数是JavaScript的基础，可以用来实现抽象层、模拟类、信息隐藏和模块
@@ -754,6 +784,8 @@ const fn2 = function() {
   
 }
 ```
+
+
 
 ### 闭包
 
@@ -775,6 +807,8 @@ function foo() {
 }
 ```
 
+
+
 ### 函数类型
 
 函数类型包括参数类型和返回值类型
@@ -793,6 +827,8 @@ let foo2: (arg1: number, arg2: number) => number = function (a, b) {
   return a + b;
 }
 ```
+
+
 
 ### 可选参数与默认参数
 
@@ -828,6 +864,8 @@ console.log(bar2(1)); // 3
 console.log(bar2(1, undefined)); // 3
 ```
 
+
+
 ### 剩余参数
 
 JavaScript中，可以使用 **<u>arguments</u>** 来访问所有传入的参数，也可以在声明函数时，使用 **<u>...（扩展运算符</u>** 收集剩余参数列表
@@ -845,6 +883,8 @@ function baz(a: string, b: string, ...other: string[]) {
 
 baz('1', '2', '3', '4', '5')
 ```
+
+
 
 ### this 和箭头函数
 
@@ -970,6 +1010,8 @@ let h3 = new Handler3();
 uIElement.addClickListener(h3.onClick);
 ```
 
+
+
 ### 重载
 
 JavaScript是一门动态语言，JavaScript里函数根据传入不同的参数而返回不同类型的数据是很常见的。当然在JavaScript中，后面声明的重名函数会覆盖前面的声明，通常是来函数体内进行一系列的判断来实现。
@@ -996,4 +1038,423 @@ console.log(getPerson(18)); // 18
 console.log(getPerson(true)); // 报错，重载的实现签名不存在，重载列表中未找到对应的声明
 console.log(getPerson({ name: '张三', age: 18 })); //{ name: '张三', age: 18 }
 ```
+
+
+
+
+
+## 泛型
+
+软件工程中，不仅要创建一致的定义良好的API，同时也要考虑可重用性。
+
+组件不仅能够支持当前的数据类型，同时也能支持未来的数据类型，一个组件可以支持多种类型的数据，泛型就是一种“代码模板”，可以用一套代码套用各种类型。
+
+**<u>可以创建泛型函数、泛型接口、泛型类，无法创建泛型枚举和泛型命名空间</u>**
+
+| 泛型应用 | 例子                                                         |
+| -------- | ------------------------------------------------------------ |
+| 泛型函数 | function genericFunc<font color=#FF0000>\<T\></font>(arg: <font color=#FF0000>T</font>): <font color=#FF0000>T</font> {<br/>      return arg;<br/>} |
+| 泛型接口 | // 带有泛型参数的泛型接口<br/>interface GenericIntfFn<font color=#FF0000>\<T\></font> {<br/>       (arg: <font color=#FF0000>T[]</font>): <font color=#FF0000>T[]</font>;<br/>       other?: <font color=#FF0000>T</font>;<br/>} |
+| 泛型类   | class GenericClass<font color=#FF0000>\<T\></font>( {<br/>       prop: <font color=#FF0000>T</font>;<br/><br/>       constructor(prop: <font color=#FF0000>T</font>) {<br/>               this.prop = prop;<br/>       }<br/><br/>       getProp: () => <font color=#FF0000>T</font> = () => {<br/>               return this.prop;<br/>      }<br/>} |
+
+
+
+### 泛型函数
+
+函数声明中，函数名后跟**<u><font color=#FF0000>\<T\></font>泛型参数</u>**（*T 只是一个泛型类型，一个参数名，可以是U、Y等其他*）的函数
+
+```typescript
+// 泛型函数例子：返回值的类型与传入参数的类型一致
+// <T>是类型变量，一种特殊的变量，只用于表示类型而不是值
+function identity<T>(arg: T): T {
+  console.log(arg.length); // number 类型不存在属性length
+  return arg;
+}
+
+// 使用方法1：传入所有的参数，包括类型参数
+let output1 = identity<string>('string arg');
+console.log(output1);
+
+// 使用方法2：编译器的类型推论
+let output2 = identity(20);
+console.log(output2);
+
+let output3 = identity(['array elm1']);
+console.log(output3);
+
+// 泛型函数：参数类型明确为数组
+function identity2<T>(arg: T[]): T[] { // 或者 Array<T>
+  console.log(arg.length);
+  return arg;
+}
+
+let identity2_otherName: <U>(a: U[]) => U[] = identity2;
+let output4 = identity2_otherName([1, 2, 3]);
+console.log(output4);
+```
+
+
+
+### 泛型接口
+
+将泛型函数的函数类型单独摘出去，变成带有调用签名的对象字面量，使用接口定义该对象字面量，这就是泛型接口
+
+```typescript
+// 使用带有调用签名的对象字面量来定义泛型函数
+let identity2_otherName2: { <U>(a: U[]): U[] } = identity2;
+let output5 = identity2_otherName2([1, 2, 3]);
+console.log(output5);
+
+// 将上面的带有调用签名的对象字面量“{ <U>(a: U[]): U[] }”封装成泛型接口
+interface IdentityIntf {
+  <T>(arg: T[]): T[];
+}
+
+// 使用泛型接口
+let identity2_otherName3: IdentityIntf = identity2;
+```
+
+#### 带有泛型参数的泛型接口
+
+```typescript
+// 带有泛型参数的泛型接口，从而清楚的知道是使用的具体是哪个泛型类型
+interface IdentityIntfFn<T> {
+  (arg: T[]): T[];
+  other?: T;
+}
+
+// 使用泛型接口，传递 number 指定泛型接口泛型参数类型，identity2_otherName4 这个函数仅用使用 number 类型数组参数
+let identity2_otherName4: IdentityIntfFn<number> = identity2;
+identity2_otherName4([1, 2, 3]);
+identity2_otherName4(['1', '2', '3']); // 不能将类型“string”分配给类型“number”
+```
+
+
+
+### 泛型类
+
+与带泛型参数的泛型接口差不多
+
+泛型类指的是类的实例部分的类型，类的静态属性不能使用这泛型类型
+
+```typescript
+class GenericClass<T> {
+  static prop: T; // 静态成员不能引用类类型参数
+  
+  private _prop1: T;
+  private _prop2: T;
+
+  constructor(prop1: T, prop2: T) {
+    this._prop1 = prop1;
+    this._prop2 = prop2;
+  }
+
+  get prop1(): T{
+    return this._prop1;
+  }
+
+  getProp2: () => T = () => {
+    return this._prop2;
+  } 
+}
+
+let myGenericClass = new GenericClass<number>(110, 120);
+let prop1 = myGenericClass.prop1
+let prop2 = myGenericClass.getProp2()
+console.log(prop1, prop2); // 110 120
+```
+
+
+
+泛型约束
+
+```typescript
+// 定义一个接口来描述约束条件
+interface LengthWise {
+  length: number;
+}
+
+// 使用约束条件接口和 extends 关键字来实现泛型约束
+function loggingIdentity<T extends LengthWise>(arg: T): T {
+  console.log(arg.length);
+  return arg;
+}
+
+// 使用时，arg 参数必须带有 length 属性，length 属性是由约束描述的
+loggingIdentity([1, 2, 3]); // 3
+loggingIdentity({ length: 10 }); // 10
+```
+
+#### 在泛型约束中使用类型参数
+
+```typescript
+function getProperty<T, K extends keyof T>(obj: T, key: K) {
+  return obj[key];
+}
+let myObj = {
+  a: 'a',
+  b: 'b'
+}
+console.log(getProperty(myObj, 'a'));
+console.log(getProperty(myObj, 'b'));
+console.log(getProperty(myObj, 'c')); // 类型“"c"”的参数不能赋给类型“"a" | "b"”的参数
+```
+
+#### 在泛型里使用类类型
+
+在TS使用泛型创建工厂函数时，需要引用构造函数的类类型
+
+```typescript
+// 在泛型里使用类类型
+function createClass<T>(c:  new() => T ): T {
+  return new c();
+}
+
+// 使用原型属性推断并约束构造函数与类实例的关系
+class MonkeyName {
+  name: string = 'monkey';
+}
+
+class TrigerName {
+  name: string = 'triger';
+}
+
+class Animal {
+}
+
+class Monkey extends Animal {
+  prop: MonkeyName = new MonkeyName;
+}
+
+class Triger extends Animal {
+  prop: TrigerName = new TrigerName;
+}
+
+function createInstance<A extends Animal>(c: new() => A): A {
+  return new c();
+}
+
+let monkey = createInstance(Monkey).prop.name;
+let triger = createInstance(Triger).prop.name;
+console.log(monkey); // monkey
+console.log(triger); // triger
+```
+
+
+
+
+
+## 枚举
+
+通常一个被命名的整型常数的集合就是枚举（数字枚举），比如星期，1-7
+
+TS支持数字枚举和字符串枚举
+
+
+
+### 数字枚举
+
+成员属性的值为数值的枚举
+
+```typescript
+enum ResponseEnum1 {
+  // 第一个成员默认为0，其余成员自增长
+  No,
+  Yes
+}
+// 通过枚举成员属性名字来获取成员值
+console.log(ResponseEnum1.No); // 0
+console.log(ResponseEnum1.Yes); // 1
+
+// 通过枚举成员属性值来获取成员名字
+console.log(ResponseEnum1[0]); // NO
+console.log(ResponseEnum1[1]); // Yes
+
+// 自定义成员值（初始化器）
+enum Direction {
+  UP = 1,
+  RIGHT,
+  DOWN,
+  LEFT = 5
+}
+// {
+//   '1': 'UP',   
+//   '2': 'RIGHT',
+//   '3': 'DOWN', 
+//   '5': 'LEFT', 
+//   UP: 1,       
+//   RIGHT: 2,    
+//   DOWN: 3,     
+//   LEFT: 5      
+// }
+console.log(Direction);
+```
+
+#### 反向映射
+
+数字枚举除了正向映射（从枚举名字到枚举值），还具有反向映射（从枚举值到枚举名字），比如上面的例子
+
+
+
+### 字符串枚举
+
+成员属性的值为字符串的枚举
+
+```typescript
+enum MyDirection {
+  Up = "UP",
+  Down = "DOWN",
+  Left = "LEFT",
+  Right = "RIGHT"
+}
+```
+
+
+
+### 计算的成员和常量成员
+
+枚举成员都带有一个值，值可以是常量，也可以是计算得到的。
+
+#### 常量成员
+
+- 它是枚举的第一个成员且没有初始化器（这时候它被赋值为0）；
+
+- 它不带初始化器且它之前的枚举成员是一个数字常量，这种情况下，当前枚举成员的值为它上一个枚举成员的值加 1；
+
+- 枚举成员使用 ***常量枚举表达式*** 初始化；
+
+  ​	常数枚举表达式是TS表达式的子集，可以在编译阶段求值。当一个表达式满足下面条件之一时，就是一个常量枚举表达式：
+
+  - 一个枚举表达式字面量（主要字符串字面量或者数字字面量）；
+  - 一个对之前定义的常量枚举成员的引用（可以是在不同的枚举类型中定义的）；
+  - 带括号的常量枚举表达式；
+  - 一元运算符 +（正号）、-（负号）、~（取反） 其中之一应用在了常量枚举表达式；
+  - 常量枚举表达式作为二元运算符 +、-、*、/、%、<< 、>>、>>>、&、|、^ 的操作对象（若常数枚举表达式求值后为 NaN 或 Infinity 则会在编译阶段报错）；
+
+#### 计算得出的成员
+
+除上面情况外，所有其他情况的枚举成员都被当成是计算得出的成员
+
+```typescript
+enum FileAccess {
+  // 常量成员
+  None,
+  Read    = 1 << 1,
+  Write   = 1 << 2, // 0b001 位向左移动两位 0b100 也就是 4
+  ReadWrite  = Read | Write,
+  // 计算得到的成员
+  G = "123".length
+}
+```
+
+
+
+### 联合枚举与枚举成员的类型
+
+存在一种特殊的非计算的常量枚举成员的子集：字面量枚举成员。字面量枚举成员是指不带有初始值的常量枚举成员，或者是值被初始化为：
+
+- 任何数值字面量（如1，100，-1，-100）;
+- 任何字符串字面量（如“foo”，“bar”）;
+
+当所有枚举成员都拥有字面量枚举值时，
+
+1. 枚举成员就成为了类型；
+
+   ```typescript
+   enum ShapeKindEnum {
+     circle = "Circle",
+     square = "Square"
+   }
+   
+   interface Circle {
+     shape: ShapeKindEnum.circle;
+     radius: number;
+   }
+   
+   interface Square {
+     shape: ShapeKindEnum.square;
+     width: number;
+   }
+   
+   let myCircle: Circle = {
+     shape: ShapeKindEnum.circle,
+     radius: 100
+   }
+   
+   let mySquare: Square = {
+     shape: "Square", // 不能将类型“"Square"”分配给类型“ShapeKindEnum.square”，所需类型来自属性 "shape"，在此处的 "Square" 类型上声明该属性
+     width: 100
+   }
+   ```
+
+2. 枚举类型本身就变成了每个枚举成员类型的联合
+
+   如上面例子中的 **<u>ShapeKindEnum</u>**，有两个枚举成员类型
+
+
+
+### 运行时的枚举
+
+枚举是在运行时真正存在的对象
+
+```typescript
+// .ts 文件
+enum E {
+  X, Y, Z
+}
+console.log(E); // { '0': 'X', '1': 'Y', '2': 'Z', X: 0, Y: 1, Z: 2 }
+
+function f(obj: { X: number }) {
+  return obj.X;
+}
+f(E);
+
+// .js 文件
+var E;
+(function (E) {
+    E[E["X"] = 0] = "X";
+    E[E["Y"] = 1] = "Y";
+    E[E["Z"] = 2] = "Z";
+})(E || (E = {}));
+console.log(E);
+function f(obj) {
+    return obj.X;
+}
+f(E);
+```
+
+
+
+### 常量枚举
+
+通过使用 **<u>const</u>** 修饰符来定义枚举，且常量枚举中只能使用常量枚举表达式，常量枚举在编译阶段会被删除
+
+```typescript
+const enum ConstEnum {
+  A, B, C
+}
+console.log(ConstEnum); // "const" 枚举仅可在属性、索引访问表达式、导入声明的右侧、导出分配或类型查询中使用
+let myList = [ConstEnum.A, ConstEnum.B, ConstEnum.C];
+console.log(myList); // [0, 1, 2]
+```
+
+
+
+### 外部枚举
+
+通过使用 declare 修饰符来定义枚举，外部枚举用来描述已经存在的枚举类型的形状（也就是一个声明，外部才可以使用）
+
+```typescript
+declare enum DeclareEnum {
+  A = 1,
+  B,
+  C = 2
+}
+console.log(DeclareEnum); // ReferenceError: DeclareEnum is not defined
+
+// 其他 ts 文件
+let myEnum: DeclareEnum; // 用刚刚定义的 DeclareEnum 来限制 myEnum
+```
+
+外部枚举和非外部枚举的区别：对于正常枚举，没有初始器的成员被当成是常数成员；对于非常数的外部枚举而言，没有初始器的成员被当成是需要经过计算的成员；
 

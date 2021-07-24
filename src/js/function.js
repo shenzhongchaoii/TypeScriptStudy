@@ -93,7 +93,7 @@ var Handler2 = /** @class */ (function () {
         this.info = 'info';
     }
     Handler2.prototype.onClick = function (e) {
-        console.log(this.info); // 类型“void”上不存在属性“info”
+        // console.log(this.info); // 类型“void”上不存在属性“info”
     };
     return Handler2;
 }());
@@ -117,5 +117,5 @@ function getPerson(person) {
 }
 console.log(getPerson('张三')); // 张三
 console.log(getPerson(18)); // 18
-console.log(getPerson(true)); // 报错，重载的实现签名不存在，重载列表中未找到对应的声明
+// console.log(getPerson(true)); // 报错，重载的实现签名不存在，重载列表中未找到对应的声明
 console.log(getPerson({ name: '张三', age: 18 })); //{ name: '张三', age: 18 }
