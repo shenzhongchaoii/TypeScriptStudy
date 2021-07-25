@@ -59,7 +59,7 @@ var ShapeKindEnum;
     ShapeKindEnum["circle"] = "Circle";
     ShapeKindEnum["square"] = "Square";
 })(ShapeKindEnum || (ShapeKindEnum = {}));
-var myCircle = {
+let myCircle = {
     shape: ShapeKindEnum.circle,
     radius: 100
 };
@@ -81,6 +81,6 @@ function f(obj) {
 }
 f(E);
 // console.log(ConstEnum); // "const" 枚举仅可在属性、索引访问表达式、导入声明的右侧、导出分配或类型查询中使用
-var myList = [0 /* A */, 1 /* B */, 2 /* C */];
+let myList = [0 /* A */, 1 /* B */, 2 /* C */];
 console.log(myList); // [0, 1, 2]
 console.log(DeclareEnum); // ReferenceError: DeclareEnum is not defined

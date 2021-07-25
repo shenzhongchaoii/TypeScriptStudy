@@ -17,7 +17,7 @@ function foo() {
 
 // -
 // 2. 函数类型
-let fooType: (a: number, b: number) => number;
+let fooT: (a: number, b: number) => number;
 
 // 完整函数类型
 let foo1: (arg1: number, arg2: number) => number = function (a: number, b: number) {

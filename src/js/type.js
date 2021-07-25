@@ -1,27 +1,27 @@
 "use strict";
 // 1. Number
-var decimalNum = 10;
-var hexadecimalNum = 0x10; // 16
-var binaryNum = 2; // 2
-var octalNum = 8; // 8
+let decimalNum = 10;
+let hexadecimalNum = 0x10; // 16
+let binaryNum = 0b10; // 2
+let octalNum = 0o10; // 8
 // -
 // 2. String
-var str1 = "string1";
-var str2 = 'string2';
-var str3 = "string3";
+let str1 = "string1";
+let str2 = 'string2';
+let str3 = `string3`;
 // -
 // 3. Boolean
-var isDoing = true;
-var isDone = false;
-var val1 = 'hello';
-var val2 = 'world';
+let isDoing = true;
+let isDone = false;
+let val1 = 'hello';
+let val2 = 'world';
 // -
 // 5. Any 和 Unknown
 // any 类型：可以直接赋值给其他变量，不管值的类型是什么
 // unknown: 类型安全的 any 类型，不可以直接赋值给其他变量，只能赋值给 unknown 类型
-var anyVal;
-var unknownVal;
-var num;
+let anyVal;
+let unknownVal;
+let num;
 anyVal = 'hello world';
 unknownVal = 10;
 num = anyVal; // 可以将 any 类型直接分配给 number 类型
@@ -43,53 +43,53 @@ console.log('num 的类型是: ' + typeof num);
 // -
 // 6. Void
 // void 类型的变量，值只能为 undefined
-var meaninglessVal = undefined;
+let meaninglessVal = undefined;
 // 没有返回值的函数
-var fn = function () {
+const fn = () => {
     // todo this
 };
 // -
 // 7. Null 和 Undefined
-var n = null;
-var u = undefined;
+let n = null;
+let u = undefined;
 // -
 // 8. Never
 // 返回never类型的函数必须存在无法达到的终点
-var errorFn = function () {
+const errorFn = () => {
     throw new Error('报错，到这里就停止');
 };
 // 类型推断，返回值的类型为never
-var failFn = function () {
+const failFn = () => {
     return errorFn();
 };
 // 返回never类型的函数必须存在无法达到的终点
-var endlessLoop = function () {
+const endlessLoop = () => {
     while (true) { // 死循环
         // todo this
     }
 };
-var obj1 = {
+let obj1 = {
     name: '张三',
     age: 18
 };
-var obj2 = {
+let obj2 = {
     name: '张三',
     age: 18,
     address: 'xxx地址'
 };
 // -
 // 10. Array
-var list = [1, 2, 3]; // let list: Array<number> = [1, 2, 3];
+let list = [1, 2, 3]; // let list: Array<number> = [1, 2, 3];
 // readonlyArray
-var numberList = [1, 2];
-var readonlyNumberList = numberList;
+let numberList = [1, 2];
+let readonlyNumberList = numberList;
 // readonlyNumberList[0] = 10; // 类型“readonly number[]”中的索引签名仅允许读取。
 // 可以使用类型断言重写
-var numberList2 = readonlyNumberList;
+let numberList2 = readonlyNumberList;
 console.log(numberList2);
 // -
 // 11. Tuple
-var tupleList = [1, '2'];
+let tupleList = [1, '2'];
 // -
 // 12. Enum
 // 默认情况下，元素从0开始开始编号
@@ -101,17 +101,17 @@ var Color;
 })(Color || (Color = {}));
 // 也可以手动编号
 // enum Color { Red = 0, Green = 1, Blue = 4 }
-var numVal = Color.Red;
+let numVal = Color.Red;
 console.log(numVal); // 0
 console.log(typeof numVal); // number 
-var strVal = Color[1];
+let strVal = Color[1];
 console.log(strVal); // Green
 console.log(typeof strVal); // string
 // -
 // 13. 类型断言
-var someVal = "这是一个字符串";
+let someVal = "这是一个字符串";
 // 1. 尖括号语法（jsx中，不允许尖括号语法）
 // let strLen: number = (<string>someVal).length;
 // 2. as 语法
-var strLen = someVal.length;
+let strLen = someVal.length;
 console.log(strLen);

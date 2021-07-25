@@ -815,7 +815,7 @@ function foo() {
 
 ```typescript
 // 函数类型
-let fooType: (a: number, b: number) => number;
+let fooT: (a: number, b: number) => number;
 
 // 完整函数类型
 let foo1: (arg1: number, arg2: number) => number = function (a: number, b: number) {
@@ -1457,4 +1457,357 @@ let myEnum: DeclareEnum; // 用刚刚定义的 DeclareEnum 来限制 myEnum
 ```
 
 外部枚举和非外部枚举的区别：对于正常枚举，没有初始器的成员被当成是常数成员；对于非常数的外部枚举而言，没有初始器的成员被当成是需要经过计算的成员；
+
+
+
+
+
+## 类型推论
+
+类型推论，即类型是在哪里被推断的，由计算通用类型算法考虑所有的情况自动推断
+
+
+
+### 最佳通用类型
+
+当需要从多个表达式中推断类型时，会使用一个兼容这些表达式类型的最佳候选类型作为通用候选类型
+
+```typescript
+// 自动推断为 number 类型
+let myNumber = 3;
+
+// 兼容所有候选类型的类型，自动推断为 (number | string | null)[]
+let myArray = [1, 2, 'test', null];
+myArray.push(undefined); // 类型“undefined”的参数不能赋给类型“string | number | null”的参数
+```
+
+有时候，通用候选类型可能无法正确使用到我们具体希望指明的类型，只能明确指出
+
+```typescript
+// 被会自动推断为 (Triger | Monkey)[]，当候选类型不能正确使用时，只能明确指出 Animal[]
+let myZoo: Animal[] = [new Triger(), new Monkey()];
+```
+
+
+
+### 上下文类型
+
+最佳通用类型的推断是基于值来推断类型，而上下文类型是考虑值出现的上下文来推断类型，也叫“按上下文归类”
+
+上下文归类会发生在表达式的类型与所处的位置相关时，如下面例子
+
+```typescript
+let myFunction: (n: number) => number;
+myFunction = (arg) => {
+  return arg.num; // 类型“number”上不存在属性“num”
+}
+```
+
+TS类型检查器会使用 ***myFunction*** 的函数类型来推断右边表达式的类型，推断出 ***arg*** 参数的类型为 ***number***，不存在属性 ***num***
+
+改写一下，函数表达式不是在上下文类型的位置，指定参数 ***arg*** 的类型为 ***any***，**<u>如果上下文类型表达式包含了明确的类型信息，则会忽略上下文的类型推断</u>**
+
+```typescript
+myFunction = (arg: any | { num: number }) => {
+  return arg.num;
+}
+```
+
+上下文归类使用的情况：包含函数的参数、赋值表达式的右边、类型断言、对象成员、数组字面量和返回值语句，上下文类型也会作为最佳通用类型的候选类型
+
+```typescript
+// 最佳通用类型有4个候选："Animal"、"Tiger"、"Monkey"和"Triger | Monkey"，Animal会被认为是最佳通用类型
+function createZoo(): Animal[] {
+  return [new Triger(), new Monkey()];
+}
+```
+
+
+
+
+
+## 类型兼容性
+
+TS的类型兼容性是基于结构子类类型的，结构类型是一种只使用其成员来描述类型的方式（基于名义类型的类型系统中，数据类型的兼容性或等价性是通过明确的声明或类型的名称来决定的；结构性类型系统是基于类型的组成结构，且不要求明确地声明）
+
+```typescript
+interface Named {
+  name: string;
+}
+class Person {
+  name: string = '';
+}
+
+let myPerson: Named;
+myPerson = new Person();
+```
+
+TypeScript的结构性子类型是根据JavaScript代码的典型写法来设计的。 因为JavaScript里广泛地使用匿名对象，例如函数表达式和对象字面量，所以使用结构类型系统来描述这些类型比使用名义类型系统更好。
+
+
+
+### 基本规则
+
+***TS结构化类型系统的基本规则：如果 x 要兼容 y，那么 y 至少具有与 x 相同的属性***
+
+
+
+### 原始类型和对象类型的兼容
+
+```typescript
+let x: Named;
+let y: { name: string, age: number } = { name: '张三', age: 18 }
+x = y;
+
+function sayHello(n: Named) {
+  console.log('hello ' + n.name)
+}
+sayHello(y);
+```
+
+上面例子中，编译器只会检查目标类型（x 和 参数 n）。检查 x 中的每个属性，查看能否在 y 中也找到对应类型的属性；检查函数参数 n 也是使用相同的规则
+
+
+
+### 函数的兼容
+
+#### 比较两个不同函数
+
+- 参数列表不同
+
+  ```typescript
+  let fn11 = (a: number) => 0;
+  let fn22 = (x: number, y: number) => 0;
+  fn22 = fn11;
+  fn11 = fn22; // 报错，不能将类型“(a: number, b: number) => number”分配给类型“(a: number) => number”
+  ```
+
+  fnc1 是否能赋值给 fnc2，看参数列表。fnc1 的每个参数都必须在 fnc2 中找到对应类型的参数（参数名字可以不同，只看类型对应），忽略了一个参数是允许的，可以参照 Array.property.forEach() 方法例子来理解；
+
+  ```javascript
+  let items = [1, 2, 3];
+  items.foerEach((item, index, array) => console.log(item));
+  items.foerEach(item => console.log(item));
+  ```
+
+  fnc2 中需要两个参数，fnc1 缺少一个，不允许赋值；
+
+- 返回值列表不同（与原始对象和对象类型的比较相似）
+
+  ```typescript
+  let fn111 = () => ({ name: '张三' });
+  let fn222 = () => ({ name: '张三', age: 18 });
+  fn111 = fn222;
+  fn222 = fn111; // 报错，类型 "{ name: string; }" 中缺少属性 "age"，但类型 "{ name: string; age: number; }" 中需要该属性
+  ```
+
+  类型系统强制源函数（fn111）的返回值类型必须是目标函数（fn222）返回值类型的子类型
+
+#### 函数参数双向协变
+
+声明需要传入的函数的类型信息并不是那么明确，但调用者可能传入了一个具有更明确类型学习的函数
+
+```typescript
+function exampleFn(cb: (any: any) => void) {
+  // ...
+}
+exampleFn((e: Event) => console.log(e));
+```
+
+#### 可选参数与剩余参数
+
+当一个函数有剩余参数时，它被当做无限个可选参数
+
+```typescript
+function myFnc(args: any[], cb: (...args: any[]) => void) {
+  // ...
+}
+myFnc([1, 2], (x, y) => console.log(x, y));
+myFnc([1, 2], (x?, y?) => console.log(x, y));
+
+let myFnc2 = (...args: any[]) => {
+  console.log(args)
+}
+myFnc2 = (x?, y?) => {
+  console.log(x, y)
+}
+```
+
+#### 函数重载
+
+源函数的每个重载都要在目标函数上找到对应的函数签名，确保目标函数可以在所有源函数可调用的地方调用
+
+
+
+### 枚举的兼容
+
+不同枚举类型之前是不兼容的
+
+```typescript
+enum Enum1 { X, Y, Z }
+enum Enum2 { X, Y, Z }
+let val = Enum1.X;
+val = Enum2.X; // 不能将类型“Enum2.X”分配给类型“Enum1”
+```
+
+
+
+### 类的兼容
+
+类与对象字面量和接口差不多，但类有静态部分和实例部分的类型，比较两个类类型的对象时，只有实例的成员会被比较，静态成员和构造函数不在比较的范围内
+
+```typescript
+class Class1 {
+  name: string;
+  static age: number;
+
+  constructor(name: string, age: number) {
+    this.name = name;
+  }
+}
+
+class Class2 {
+  name: string;
+  constructor(name: string) {
+    this.name = name;
+  }
+}
+
+
+let c1: Class1 = new Class1('class1', 18);
+let c2: Class2 = new Class2('class2');
+c2 = c1;
+c1 = c2;
+```
+
+#### 类的私有成员和受保护成员
+
+类的私有成员和受保护成员会影响兼容性。检查类实例的兼容性时，如果目标类型包含一个私有成员时，源类型也必须包含来自同一个类的这个私有成员，受保护成员也是如此，这表明了类的派生。
+
+```typescript
+// 改写上面例子
+class Class1 {
+  ...
+  protected address: string = 'address';
+  ...
+}
+...
+c1 = c2; // 报错，类型 "Class2" 中缺少属性 "address"，但类型 "Class1" 中需要该属性
+```
+
+```typescript
+// 还是改写
+class Class1 {
+  ...
+  protected address: string = 'address';
+  ...
+}
+class Class2 {
+  ...
+  protected address: string = 'address';
+  ...
+}
+...
+c2 = c1; // 报错，不能将类型“Class1”分配给类型“Class2”。属性“address”受保护，但类型“Class1”并不是从“Class2”派生的类
+c1 = c2; // 报错，不能将类型“Class2”分配给类型“Class1”。属性“address”受保护，但类型“Class2”并不是从“Class1”派生的类
+```
+
+```typescript
+class Class2 extends Class1{
+}
+c2 = c1; // ok
+c1 = c2; // ok
+```
+
+
+
+### 泛型的兼容
+
+TS是结构性的类型系统，类型参数只影响使用其作为类型一部分的结果类型
+
+```typescript
+interface Empty<T> {}
+let empty1: Empty<number> = {};
+let empty2: Empty<string> = {};
+empty1 = empty2;
+empty2 = empty1;
+```
+
+这里结果类型被当成 any，因为它们的结构使用类型参数是没有不同的，都是 {}
+
+```typescript
+// 改写上面例子
+interface Empty<T> {
+  empty: T;
+}
+let empty1: Empty<number> = {
+  empty: 0
+};
+let empty2: Empty<string> = {
+  empty: '0'
+};
+empty1 = empty2; // 不能将类型“Empty<string>”分配给类型“Empty<number>”。不能将类型“string”分配给类型“number”
+empty2 = empty1; // 不能将类型“Empty<number>”分配给类型“Empty<string>”。不能将类型“number”分配给类型“string”
+```
+
+结果类型不同，所以无法兼容
+
+
+
+
+
+## Symbol
+
+ECMAScript 2015（ES6）起，规定了一种新的原始类型 symbol，像 number 、string 、boolean 一样，
+
+详见 MDN [Symbol - JavaScript | MDN (mozilla.org)](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Symbol)
+
+
+
+### symbol 类型的创建
+
+语法：`Symbol([description])`
+
+description 是可选的，字符串类型，表示对 symbol 的描述，仅用于调试
+
+symbol 类型的值是通过 Symbol 构造函数创建的，每次调用都会创建新的 symbol 类型，即不可变且唯一的
+
+```typescript
+let symbol1: symbol = Symbol();
+let symbol2 = Symbol();
+console.log(symbol1 == symbol2); // false
+
+let symbol3: symbol = Symbol('key');
+let symbol4 = Symbol('key');
+console.log(symbol3 == symbol4); // false
+```
+
+
+
+### 作为对象属性的键
+
+```javascript
+// .js文件
+let key = Symbol();
+let testObj = {
+  [key]: 'value'
+}
+console.log(testObj[key]); // value
+```
+
+
+
+### 结合计算出的属性名声明来声明对象的属性和类成员
+
+```javascript
+// .js文件
+let getClassNameSymbol = Symbol();
+class TestC {
+  [getClassNameSymbol]() {
+    return getClassNameSymbol;
+  }
+}
+let testC = new TestC();
+console.log(testC[getClassNameSymbol]()); // Symbol();
+```
 
