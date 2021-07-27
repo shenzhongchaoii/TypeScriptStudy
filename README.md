@@ -147,7 +147,7 @@ const fn = (): void => {
 
 #### Null 和 Undefined
 
-值为null时，对应的类型为null（undefined同理）
+值为null时，对应的类型为null（undefined同理），两者区别对待，通常不会使用
 
 ```typescript
 let n: null = null;
@@ -259,6 +259,21 @@ let strLen: number = (<string>someVal).length;
 
 console.log(strLen); // 7
 ```
+
+##### 非空类型断言
+
+当开启 strictNullChecks 标记时，使用 ! 后缀（可以忽略编译器对象属性不存在即undefined时的错误检查）的对象必须明确定义此时的成员类型，告诉编译器：我不会为null，也不会为undefined
+
+```typescript
+let tname: string = 'string'
+let tname2: string;
+console.log(tname.trim())
+//非空断言操作符 ! 可以移除编译器检查对象属性为undefined时报错
+//当属性不存在时，运行会报错 undefined 无法通过
+console.log(tname2!.toString())
+```
+
+
 
 
 
@@ -1756,7 +1771,7 @@ empty2 = empty1; // 不能将类型“Empty<number>”分配给类型“Empty<st
 
 
 
-## Symbol
+## Symbols
 
 ECMAScript 2015（ES6）起，规定了一种新的原始类型 symbol，像 number 、string 、boolean 一样，
 
@@ -1810,4 +1825,281 @@ class TestC {
 let testC = new TestC();
 console.log(testC[getClassNameSymbol]()); // Symbol();
 ```
+
+
+
+众所周知的Symbols
+
+|      方法/属性       |                             说明                             | 例子                                                         |
+| :------------------: | :----------------------------------------------------------: | :----------------------------------------------------------- |
+|   Symbol.for(key)    | 根据字符串key值（即symbol的描述，key值）到运行时的全局symbol注册表查找对应的symbol，找到则返回，否则返回新创建的symbol | ![image-20210726150939540](C:\Users\AS\AppData\Roaming\Typora\typora-user-images\image-20210726150939540.png) |
+|  Symbol.keyFor(sym)  | 根据具体symbol到全局symbol注册表查找对应的key值，找到则返回字符串类型值，否则返回undefined | ![image-20210726151006405](C:\Users\AS\AppData\Roaming\Typora\typora-user-images\image-20210726151006405.png) |
+|   Symbol.iterator    | 方法，被`for-of`语句调用。返回对象的默认迭代器（包括有默认迭代器行为的内置类型及自定义迭代器）<br/>（函数生成器https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function*） | ![image-20210726153653272](C:\Users\AS\AppData\Roaming\Typora\typora-user-images\image-20210726153653272.png) |
+| Symbol.asyncIterator | 方法，被`for-await-of`语句调用。返回对象的默认异步迭代器（必须带有Symbol.asyncIterator属性） |                                                              |
+|                      |                                                              |                                                              |
+
+
+
+## 高级类型
+
+### 交叉类型
+
+交叉类型就是将多个类型合并叠加到一起成为一种类型，它包含了所需的所有类型的特性，比如**<u>实现多个接口、使用 & 将多个对象类型组合起来</u>**等
+
+```typescript
+interface MyIntfOne {
+  run(): void
+}
+
+interface MyIntfTwo {
+  jump(): void
+}
+
+class MyTestC implements MyIntfOne, MyIntfTwo {
+  run() { console.log('run'); }
+  jump() { console.log('jump'); }
+}
+const myTestC = new MyTestC();
+myTestC.run();
+
+const myTestObj: MyIntfOne & MyIntfTwo = {
+  run() { console.log('run'); },
+  jump() { console.log('jump'); }
+}
+myTestObj.jump();
+
+const myTestObj2: { name: string } & { age: number } = {
+  name: '张三',
+  age: 20
+}
+```
+
+
+
+### 联合类型
+
+联合类型可以表示一个值是几种类型之一，也可以表示一个值是联合类型，只能访问此联合类型的类型里共有的成员，**<u>使用 | 组合多个类型</u>**
+
+```typescript
+const myBar = (arg: number | string) => {
+  console.log(typeof arg);
+}
+myBar(1); // number
+myBar('1'); // string
+
+interface Bird {
+  fly(): void;
+  eat(): void
+}
+
+interface Fish {
+  swim(): void;
+  eat(): void;
+}
+
+function getSmallPet(): Fish | Bird {
+  // ...
+  let res: Fish | Bird = {
+    fly(){},
+    swim(){},
+    eat(){}
+  }
+  return res;
+}
+
+let pet1 = getSmallPet() as Bird; // 使用类型断言告诉编译器：这是 bird
+pet1.eat();
+pet1.swim(); // 类型“Bird”上不存在属性“swim”
+
+let pet2 = getSmallPet() as Fish; // 使用类型断言告诉编译器：这是 Fish
+pet2.eat();
+pet2.swim();
+```
+
+
+
+### 类型保护和区分类型
+
+联合类型适合用于值可以为不同类型的情况，当有时需要正确知道明确是什么类型时，JavaScript是使用typeof关键字区分原始类型、以及区分多个可能值的方法是检查对象成员是否存在，TypeScript使用类型断言来区分
+
+```typescript
+// 改写上面例子
+let pet = getSmallPet();
+if ((pet as Fish).swim) {
+  (pet as Fish).swim();
+} else {
+  (pet as Bird).fly();
+}
+```
+
+#### 用户自定义类型保护
+
+上面例子中，我们使用了多次类型断言，但这是一种无用的操作（既然知道类型了还去一个一个类型断言做什么？），因此，TypeScript提供了**<u>类型保护机制</u>**，会在运行时检查以确保在某个作用域里的类型。
+
+要定义一个类型保护，只要简单地定义一个函数，它的返回值是一个**<u>类型谓词</u>**
+
+```typescript
+function isFish(pet: Fish | Bird): pet is Fish {
+  return (pet as Fish).swim !== undefined;
+}
+if (isFish(pet)) {
+  pet.swim();
+} else { // 会被自动结合上下文
+  pet.fly();
+}
+```
+
+#### typeof 类型保护
+
+TypeScript会将typeof识别作为一个类型保护，原来检查是否为原始类型（number、string、boolean 或 symbol），只有两种形式会被识别：
+
+- typeof v === 'typename'
+- typeof v !== 'typename'
+
+```typescript
+// 改写上面例子
+const myBar = (arg: number | string) => {
+  console.log(typeof arg);
+  if (typeof arg == 'string') {
+    console.log((arg as string).length);
+  }
+  if (typeof arg !== 'number') {
+    console.log((arg as string).length);
+  }
+}
+myBar(1); // number
+myBar('hello world'); // string 11 11
+```
+
+#### instanceof 类型保护
+
+instanceof 类型保护是通过构造函数来细化类型的一种方式，TypeScript会按下面顺序细化：
+
+1. 此构造函数的 `prototype`属性的类型，如果它的类型不为 `any`的话；
+2. 构造签名所返回的类型的联合；
+
+补充：instanceof 运算符用于检查构造函数的prototype属性是否出现在某个实例对象的原型链上
+
+![img](https://images2018.cnblogs.com/blog/1265396/201711/1265396-20171127082821065-1506469155.png)
+
+```typescript
+// instanceof 简单使用
+class TestClass {
+  constructor(public name: string, private age: number) {
+    console.log(this.name);
+    console.log(this.age)
+  }
+}
+
+let tc = new TestClass('张三', 20);
+console.log(tc instanceof TestClass); // true
+console.log(tc instanceof Object); // true
+```
+
+```typescript
+interface MyIntfThree {
+  say(): void
+}
+class BirdClass implements MyIntfThree {
+  say() {
+    console.log('bird 不会 run');
+  }
+}
+class FishClass implements MyIntfThree {
+  say() {
+    console.log('Fish 不会 run');
+  }
+}
+function getPet() {
+  return Math.random() < 0.5 ? new BirdClass() : new FishClass()
+}
+let pet1 = getPet();
+if (pet1 instanceof BirdClass) {
+  pet1.say();
+}
+if (pet1 instanceof FishClass) {
+  pet1.say();
+```
+
+
+
+### 可以为 null 的类型、可以为 undefined 的类型
+
+TS两种特殊的类型：null 和 undefined，分别具有值 null 和 undefined，类型检查器（关闭项目配置 strictNullChecks 值为 false 时）会默认给类型增加 | null | undefined，可以赋值给任意类型，是所有其他类型的一个有效值
+
+```typescript
+// tsconfig.json 中
+/*
+{
+  "compilerOptions": {
+    ...
+    "strictNullChecks": false,
+    ...
+  }
+}
+*/
+let s: string;
+s = 'string'; // 相当于 let s: string | null | undefined;
+s = undefined;
+s = null;
+```
+
+按照JavaScript语义，TS会把 null 和 undefined 区别对待，string | null、string | undefined、string | null | undefined 是不同的类型
+
+#### 可选参数和可选属性
+
+开启 strictNullChecks 标记后，可选参数和可选属性会自动加上 | undefined
+
+```typescript
+function f(x: number, y?: number) {
+  return x + (y || 0);
+}
+f(1, 2);
+f(1);
+f(1, undefined);
+f(1, null); // 类型“null”的参数不能赋给类型“number | undefined”的参数
+
+interface IIntf {
+  name: string;
+  age?: number;
+}
+let o: IIntf = {
+  name: '张三'
+}
+console.log(o?.age); // undefined
+```
+
+#### 类型保护和非空类型断言
+
+开启 strictNullChecks 标记后，可以为 null 的类型只能通过联合 null 类型实现，可以通过几种方式去除 null ：
+
+1. 使用类型保护去除 val === null ;
+2. 使用短路运算符 || ；
+3. 使用非空类型断言手动去除编译检查，语法是添加 ! 后缀；
+4. 使用可选参数/可选属性，相当于关闭 strictNullChecks 标记;
+
+```typescript
+function print(str: string | null) {
+  // 1
+  // if (str === null) {
+  //   return 'default'
+  // }
+  // return str
+
+  // 2
+  // return str || 'default'; // str 为 null，为 default
+
+  // 3
+  // return str!.length; // str 为 null 会忽略编译检查，运行报错
+
+  // 4
+  return str?.length; // str 为 null，相当于关闭 strictNullChecks 标记，为 undefined
+}
+console.log(print(null));
+console.log(print('hello'));
+```
+
+
+
+### 类型别名
 

@@ -100,7 +100,8 @@ empty1 = empty2;
 empty2 = empty1;
 
 
-// number, string, boolean, undefined, symbol, bigInt
+// number, string, boolean, symbol, bigInt
+// undefined
 // null
 // object(Object对象，Array对象, Function对象, Date对象等等)
 let argX: any;

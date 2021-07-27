@@ -115,3 +115,10 @@ let someVal = "这是一个字符串";
 // 2. as 语法
 let strLen = someVal.length;
 console.log(strLen);
+// 非空类型断言
+let tname = 'string';
+let tname2;
+console.log(tname.trim());
+//非空断言操作符 ! 可以移除编译器检查对象属性为undefined时报错
+//当属性不存在时，运行会报错 undefined 无法通过
+console.log(tname2.toString());
