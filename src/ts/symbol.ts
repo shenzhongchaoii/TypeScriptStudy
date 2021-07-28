@@ -71,13 +71,3 @@ for (const iterator of myIterable) {
   console.log(iterator); // 3 2 1
 }
 console.log(...myIterable); // 3 2 1
-
-
-interface In {
-  name: string,
-  length: number
-}
-
-type TypeExample1 = keyof In; // 'name' | 'length'
-type TypeExample2 = keyof In[]; // number | 'length' | 'push' | 'forEach' | ....
-type TypeExample3 = keyof { [prop:string]: In } // number | string

@@ -93,8 +93,12 @@ let isDone: boolean = false;
 
 ```typescript
 type StringLiteral = 'hello' | 'world';
-let val1: StringLiteral = 'hello';
-let val2: StringLiteral = 'world';
+let strVal1: StringLiteral = 'hello';
+let strVal2: StringLiteral = 'world';
+
+type NumberLiteral = 100 | 200;
+let numVal1: NumberLiteral = 100;
+let numVal2: NumberLiteral = 200;
 ```
 
 #### Any 和 Unknown
@@ -384,11 +388,11 @@ const searchFn: SearchFn = (a: number, b) => {
 
 ### 可索引类型
 
-可索引类型具有一个索引签名，它描述了对象索引的类型及对应的返回值类型。
+可索引类型具有一个索引签名，一种动态属性名。它描述了对象索引的类型及对应的返回值类型。
 
 ts支持两种签名：字符串和数字
 
-可以同时使用，但此时数字索引的返回值类型必须是字符串索引返回值类型的子类型
+可以同时使用，但此时数字索引的返回值类型必须是字符串索引返回值类型的子类型，这是因为当使用 number 来索引时，JavaScript实际上会将它转成 string 再去索引对象，所以 number 索引的返回值类型必须是 string 返回值类型的子类型，保持两者一致
 
 ```typescript
 // 定义一个元素值为字符串的数组类型接口
@@ -1934,7 +1938,7 @@ if ((pet as Fish).swim) {
 
 #### 用户自定义类型保护
 
-上面例子中，我们使用了多次类型断言，但这是一种无用的操作（既然知道类型了还去一个一个类型断言做什么？），因此，TypeScript提供了**<u>类型保护机制</u>**，会在运行时检查以确保在某个作用域里的类型。
+上面例子中，我们使用了多次类型断言，但这是一种无用的操作（既然知道类型了还去一个一个类型断言做什么？而且类型断言不能作为if-else判断），因此，TypeScript提供了**<u>类型保护机制</u>**，会在运行时检查以确保在某个作用域里的类型。
 
 要定义一个类型保护，只要简单地定义一个函数，它的返回值是一个**<u>类型谓词</u>**
 
@@ -2103,3 +2107,260 @@ console.log(print('hello'));
 
 ### 类型别名
 
+类型别名，使用 **<u>type</u>** 关键字给类型起个新名字来引用类型。类型别名有时和接口很像，可以作用于原始值（通常没什么用，尽管可以作为文档的一种形式使用），联合类型，元组以及任何其他需要手写的类型、自定义类型
+
+```typescript
+type StringType = string; // string 类型
+type StringTypeResolver = () => string; // 返回值为 string 的 function 类型
+type StringTypeOrResolver = String | StringTypeResolver;
+
+type Tree<T> = T & {
+  value: string;
+  children: Tree<T>[] | [];
+}
+```
+
+类型不能自引用，因为永远无法赋值完整
+
+```typescript
+type TestType = null | TestType; // 类型别名“TestType”循环引用自身
+type TestType2<TestType2> = {
+  next: TestType2
+}
+
+interface tt {
+  next: tt
+}
+
+let ttt: TestType2<tt> = {
+  next: {
+    next: {
+      next: {
+        // 类型 "{}" 中缺少属性 "next"，但类型 "tt" 中需要该属性
+      }
+    }
+  }
+}
+console.log(ttt.next.next.next)
+```
+
+#### 接口 VS 类型别名
+
+尽管类型别名有时可以像接口一样，但还是有区别：
+
+1. type 可以用于基础类型、联合类型、元组等；
+2. interface 支持同名合并（与接口 extends 接口一样）；
+3. type 通过交叉类型 & 实现 extends，两者都支持 implements；
+4. type 支持枚举字符串字面量类型创建索引签名；
+
+除非无法通过接口来描述一个类型并且需要使用联合类型或元组类型时，才会使用类型别名，否则应该尽量使用接口代替类型别名
+
+```typescript
+interface MyPoint {
+  x: number;
+  y: number;
+}
+type MyPointAlias = {
+  x: number;
+  y: number;
+}
+let myPoint: MyPoint = { x: 1, y: 1 };
+let myPoint2: MyPointAlias = { x: 1, y: 1 };
+
+// 接口的 extends 与 implements，类型别名的 extends 与 implements
+interface MyPointV2 extends MyPoint {
+  z: number;
+}
+type MyPointAliasV2  = MyPointAlias & { z: number }
+let myPoinstV2: MyPointV2 = {
+  x: 1,
+  y: 1,
+  z: 1
+}
+
+class PointClass implements MyPoint {
+  constructor(public x: number, public y: number) { }
+}
+class PointAliasClass implements MyPointAlias {
+  constructor(public x: number, public y: number) { }
+}
+let myPointClass: PointClass = new PointClass(1, 1);
+let myPointAliasClass: PointAliasClass = new PointAliasClass(1, 1);
+
+// 接口属性合并
+interface Triangle {
+  l1: number;
+}
+interface Triangle {
+  l2: number;
+}
+interface Triangle {
+  l3: number;
+}
+let triangle: Triangle = {
+  l1: 1,
+  l2: 1,
+  l3: 1
+}
+
+// type 支持计算属性：枚举字符串字面量类型创建索引签名
+type Props = 'prop1' | 'prop2'
+type EnumPropObj = {
+  [prop in Props]: string;
+}
+let mO: EnumPropObj = {
+  prop1: 'val1',
+  prop2: 'val2',
+  prop3: 'val3' // 不存在该property
+}
+interface Inttt {
+  [prop in Props]: string; // 接口的计算属性名称必须为 string、number、symbol、any
+}
+```
+
+
+
+### 可辨识联合类型
+
+可以合并基础类型、联合类型、类型保护和类型别名来创建一个叫做 ***可辨识联合*** 的类型，也叫作 标签联合 或者 代数数据类型，有三要素：
+
+1. 具有普通的单例类型属性 -- ***可辨识的特征***；
+2. 一个类型别名包含了那些类型的联合 -- ***联合***；
+3. 此属性上的类型保护；
+
+```typescript
+interface MySquareIntf {
+  kind: "square";
+  size: number;
+}
+interface MyRectangleIntf {
+  kind: "rectangle";
+  width: number;
+  height: number;
+}
+interface MyCircleIntf {
+  kind: "circle";
+  radius: number;
+}
+interface MyCircleIntf {
+  kind: "circle";
+  radius: number;
+}
+interface MyTriangleIntf {
+  kind: "triangle";
+  base: number;
+  height: number;
+}
+type MyShapeType = MySquareIntf | MyRectangleIntf | MyCircleIntf | MyTriangleIntf;
+
+function isNotSet(x: unknown): never {
+  throw new Error('不存在该形状图形')
+}
+function area(s: MyShapeType) {
+  switch (s.kind) {
+      case "square": return Math.pow(s.size, 2) ;
+      case "rectangle": return s.height * s.width;
+      case "circle": return Math.PI * s.radius ** 2;
+      default: return isNotSet(s)
+  }
+}
+let rtgl: MyTriangleIntf = {
+  kind: 'triangle',
+  base: 20,
+  height: 10
+}
+
+console.log(area(rtgl)); // 抛出一个错误
+```
+
+#### 使用never来进行完整类型检查
+
+详细见上面例子
+
+
+
+### 索引类型
+
+使用索引类型，编译器可以检查使用了动态属性名的代码，最常见是判断是否为对象的属性
+
+#### keyof 索引类型查询操作符
+
+使用 keyof 来获取对象中所有属性 key 组成的字面量字符串联合类型
+
+```typescript
+function getN<T, K extends keyof T> (obj: T, key: K): T[K] {
+  // K：'name' | 'age
+  return obj[key];
+}
+interface PIntf<T1, T2> {
+  name: T1;
+  age: T2
+}
+type P<T1, T2> = {
+  readonly [P in keyof PIntf<T1, T2>]: PIntf<T1, T2>[P];
+}
+let zs: P<string, number> = {
+  name: '张三',
+  age: 20
+}
+let pname = getN(zs, 'name');
+let page = getN(zs, 'age');
+console.log(pname); // 张三
+console.log(page); // 20
+
+let pp1: keyof P<string, number> = 'age';
+let pp2: keyof P<string, number> = 'name';
+
+let ppname: P<string, number>['name'] = '李四';
+let ppage: P<string, number>['age'] = 24;
+```
+
+#### T[K] 索引访问操作符
+
+像接口、对象等类型的，可以通过 T[K] 索引访问操作符来获取对应返回值类型，详细见上面例子
+
+#### 索引类型和字符串索引签名
+
+keyof 和 T[K] 之间的关系相当于对象中的属性与值，如果有一个带有字符串索引签名的类型，那么  keyof T 会返回 number | string，且 T[string] 会返回索引签名的返回值类型
+
+```typescript
+interface Objj<T> {
+  [key: string]: T;
+}
+let keys: keyof Objj<number>; // number | string
+let value: Objj<number>['foo']; // number
+```
+
+
+
+### 映射类型
+
+TypeScript 提供了从旧类型中创建新类型的一种方式 -- 映射类型。在映射类型里，新类型以相同的形式去转换旧类型每个属性，比如使每个属性成为 readonly 或者可选的
+
+```typescript
+interface PIntf<T1, T2> {
+  name: T1;
+  age: T2
+}
+type ReadonlyP<T1, T2> = {
+  readonly [P in keyof PIntf<T1, T2>]: PIntf<T1, T2>[P];
+}
+type OptionalP<T1, T2> = {
+  [P in keyof PIntf<T1, T2>]?: PIntf<T1, T2>[P];
+}
+type NullablePerson<T1, T2> = {
+  [P in keyof PIntf<T1, T2>]: null;
+}
+```
+
+
+
+### 预定义的有条件类型
+
+TypeScript 2.8在`lib.d.ts`里增加了一些预定义的有条件类型：
+
+- `Exclude<T, U>` -- 从`T`中剔除可以赋值给`U`的类型；
+- `Extract<T, U>` -- 提取`T`中可以赋值给`U`的类型；
+- `NonNullable<T>` -- 从`T`中剔除`null`和`undefined`；
+- `ReturnType<T>` -- 获取函数返回值类型；
+- `InstanceType<T>` -- 获取构造函数类型的实例类型；

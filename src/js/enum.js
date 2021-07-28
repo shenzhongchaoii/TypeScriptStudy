@@ -76,10 +76,10 @@ var E;
     E[E["Z"] = 2] = "Z";
 })(E || (E = {}));
 console.log(E); // { '0': 'X', '1': 'Y', '2': 'Z', X: 0, Y: 1, Z: 2 }
-function f(obj) {
+function fff(obj) {
     return obj.X;
 }
-f(E);
+fff(E);
 // console.log(ConstEnum); // "const" 枚举仅可在属性、索引访问表达式、导入声明的右侧、导出分配或类型查询中使用
 let myList = [0 /* A */, 1 /* B */, 2 /* C */];
 console.log(myList); // [0, 1, 2]

@@ -155,3 +155,160 @@ function print(str) {
 }
 console.log(print(null));
 console.log(print('hello'));
+function getString(str) {
+    // 1. typeof 类型保护定义
+    // if (typeof str === 'string') { // typeof str !== 'function'
+    //   return str;
+    // }
+    // 2. instanceof 类型保护定义
+    // if (!(str instanceof Object)) {
+    //   return str;
+    // }
+    // 3. 类型谓词，用户自定义类型保护
+    if (isStringType(str)) {
+        return str;
+    }
+    // 猜猜这个
+    // if (str as StringType) {
+    //   return (str as StringType);
+    // }
+    return str();
+}
+console.log(getString('hello'));
+console.log(getString(() => 'world'));
+let otherArg = (() => {
+    return 'world';
+})();
+console.log(getString(otherArg));
+function isStringType(arg) {
+    return !(arg instanceof Object);
+}
+let menu;
+menu = {
+    value: '一级菜单',
+    children: [
+        {
+            value: '二级菜单',
+            children: [
+                {
+                    value: '三级菜单',
+                    children: []
+                }
+            ]
+        }
+    ]
+};
+let myPoint = { x: 1, y: 1 };
+let myPoint2 = { x: 1, y: 1 };
+let myPoinstV2 = {
+    x: 1,
+    y: 1,
+    z: 1
+};
+class PointClass {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+}
+class PointAliasClass {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+}
+let myPointClass = new PointClass(1, 1);
+let myPointAliasClass = new PointAliasClass(1, 1);
+let triangle = {
+    l1: 1,
+    l2: 1,
+    l3: 1
+};
+let mO = {
+    prop1: 'val1',
+    prop2: 'val2',
+    // prop3: 'val3' // 不存在该property
+};
+function isNotSet(x) {
+    throw new Error('不存在该形状图形');
+}
+function area(s) {
+    switch (s.kind) {
+        case "square": return Math.pow(s.size, 2);
+        case "rectangle": return s.height * s.width;
+        case "circle": return Math.PI * Math.pow(s.radius, 2);
+        default: return isNotSet(s);
+    }
+}
+let rtgl = {
+    kind: 'triangle',
+    base: 20,
+    height: 10
+};
+// console.log(area(rtgl)); // 抛出一个错误
+// -
+// 6. 索引类型
+function getN(obj, key) {
+    // K：'name' | 'age
+    return obj[key];
+}
+let zs = {
+    name: '张三',
+    age: 20
+};
+let pname = getN(zs, 'name');
+let page = getN(zs, 'age');
+console.log(pname); // 张三
+console.log(page); // 20
+let pp1 = 'age';
+let pp2 = 'name';
+let ppname = '李四';
+let ppage = 24;
+let keys; // number | string
+let value; // number
+function proxify(o) {
+    // 根据 Proxify<T>
+    /**
+     * {
+     *   name: {
+     *     get(),
+     *     set()
+     *   }
+     * }
+     */
+    if (o instanceof Object) {
+        let res = {};
+        // let res = {} as (Proxify<T> | T)
+        for (const key in o) {
+            let val = o[key];
+            let property = {
+                get() {
+                    return val;
+                },
+                set(newVal) {
+                    val = newVal;
+                }
+            };
+            Object.defineProperty(res, key, property);
+        }
+        return res;
+    }
+    return o;
+}
+let objEp = {
+    age: 20,
+    name: 'zs'
+};
+let proxyProps = proxify(objEp);
+console.log('age', proxyProps.age);
+function getNNN(o) {
+    return {
+        name: {
+            get() {
+                return o;
+            },
+            set(o) { }
+        }
+    };
+}
+let nnn = getNNN({ name: 'zs' });

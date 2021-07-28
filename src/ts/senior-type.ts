@@ -212,3 +212,360 @@ function print(str: string | null) {
 }
 console.log(print(null));
 console.log(print('hello'));
+
+
+// -
+// 4. 类型别名
+type StringType = string; // string 类型
+type StringTypeResolver = () => string; // 返回值为 string 的 function 类型
+type StringTypeOrResolver = String | StringTypeResolver;
+
+function getString(str: StringTypeOrResolver): StringType {
+  // 1. typeof 类型保护定义
+  // if (typeof str === 'string') { // typeof str !== 'function'
+  //   return str;
+  // }
+
+  // 2. instanceof 类型保护定义
+  // if (!(str instanceof Object)) {
+  //   return str;
+  // }
+
+  // 3. 类型谓词，用户自定义类型保护
+  if (isStringType(str)) {
+    return str;
+  }
+
+  // 猜猜这个
+  // if (str as StringType) {
+  //   return (str as StringType);
+  // }
+
+  return (str as StringTypeResolver)();
+}
+
+console.log(getString('hello'));
+console.log(getString(()=>'world'));
+let otherArg = (()=>{
+  return 'world';
+})()
+console.log(getString(otherArg));
+
+
+function isStringType(arg: StringTypeOrResolver): arg is StringType  {
+  return !(arg instanceof Object);
+}
+
+
+type Tree<T> = T & {
+  value: string;
+  children: Tree<T>[] | [];
+}
+
+interface Menu {
+  value: string;
+}
+
+let menu: Tree<Menu>;
+
+menu = {
+  value: '一级菜单',
+  children: [
+    {
+      value: '二级菜单',
+      children: [
+        {
+          value: '三级菜单',
+          children: []
+        }
+      ]
+    }
+  ]
+}
+
+// type TestType = null | TestType; // 类型别名“TestType”循环引用自身
+type TestType2<TestType2> = {
+  next: TestType2
+}
+
+interface tt {
+  next: tt
+}
+
+// let ttt: TestType2<tt> = {
+//   next: {
+//     next: {
+//       next: {
+//         // 类型 "{}" 中缺少属性 "next"，但类型 "tt" 中需要该属性
+//       }
+//     }
+//   }
+// }
+// console.log(ttt.next.next.next)
+
+// 接口 VS 类型别名
+interface MyPoint {
+  x: number;
+  y: number;
+}
+type MyPointAlias = {
+  x: number;
+  y: number;
+}
+let myPoint: MyPoint = { x: 1, y: 1 };
+let myPoint2: MyPointAlias = { x: 1, y: 1 };
+
+// 接口的 extends 与 implements，类型别名的 extends 与 implements
+interface MyPointV2 extends MyPoint {
+  z: number;
+}
+type MyPointAliasV2  = MyPointAlias & { z: number }
+let myPoinstV2: MyPointV2 = {
+  x: 1,
+  y: 1,
+  z: 1
+}
+
+class PointClass implements MyPoint {
+  constructor(public x: number, public y: number) { }
+}
+class PointAliasClass implements MyPointAlias {
+  constructor(public x: number, public y: number) { }
+}
+let myPointClass: PointClass = new PointClass(1, 1);
+let myPointAliasClass: PointAliasClass = new PointAliasClass(1, 1);
+
+// 接口属性合并
+interface Triangle {
+  l1: number;
+}
+interface Triangle {
+  l2: number;
+}
+interface Triangle {
+  l3: number;
+}
+let triangle: Triangle = {
+  l1: 1,
+  l2: 1,
+  l3: 1
+}
+
+// type 支持计算属性：枚举字符串字面量类型创建索引签名
+type Props = 'prop1' | 'prop2'
+type EnumPropObj = {
+  [prop in Props]: string;
+}
+let mO: EnumPropObj = {
+  prop1: 'val1',
+  prop2: 'val2',
+  // prop3: 'val3' // 不存在该property
+}
+// interface Inttt {
+//   [prop in Props]: string; // 接口的计算属性名称必须为 string、number、symbol、any
+// }
+
+
+// -
+// 5. 可辨识联合类型
+interface MySquareIntf {
+  kind: "square";
+  size: number;
+}
+interface MyRectangleIntf {
+  kind: "rectangle";
+  width: number;
+  height: number;
+}
+interface MyCircleIntf {
+  kind: "circle";
+  radius: number;
+}
+interface MyCircleIntf {
+  kind: "circle";
+  radius: number;
+}
+interface MyTriangleIntf {
+  kind: "triangle";
+  base: number;
+  height: number;
+}
+type MyShapeType = MySquareIntf | MyRectangleIntf | MyCircleIntf | MyTriangleIntf;
+
+function isNotSet(x: unknown): never {
+  throw new Error('不存在该形状图形')
+}
+function area(s: MyShapeType) {
+  switch (s.kind) {
+      case "square": return Math.pow(s.size, 2) ;
+      case "rectangle": return s.height * s.width;
+      case "circle": return Math.PI * s.radius ** 2;
+      default: return isNotSet(s)
+  }
+}
+let rtgl: MyTriangleIntf = {
+  kind: 'triangle',
+  base: 20,
+  height: 10
+}
+
+// console.log(area(rtgl)); // 抛出一个错误
+
+
+// -
+// 6. 索引类型
+function getN<T, K extends keyof T> (obj: T, key: K): T[K] {
+  // K：'name' | 'age
+  return obj[key];
+}
+interface PIntf<T1, T2> {
+  name: T1;
+  age: T2
+}
+type P<T1, T2> = {
+  readonly [P in keyof PIntf<T1, T2>]: PIntf<T1, T2>[P];
+}
+let zs: P<string, number> = {
+  name: '张三',
+  age: 20
+}
+let pname = getN(zs, 'name');
+let page = getN(zs, 'age');
+console.log(pname); // 张三
+console.log(page); // 20
+
+let pp1: keyof P<string, number> = 'age';
+let pp2: keyof P<string, number> = 'name';
+
+let ppname: P<string, number>['name'] = '李四';
+let ppage: P<string, number>['age'] = 24;
+
+interface Objj<T> {
+  [key: string]: T;
+}
+let keys: keyof Objj<number>; // number | string
+let value: Objj<number>['foo']; // number
+
+interface In {
+  name: string,
+  length: number
+}
+
+type TypeExample1 = keyof In; // 'name' | 'length'
+type TypeExample2 = keyof In[]; // number | 'length' | 'push' | 'forEach' | ....
+type TypeExample3 = keyof { [prop:string]: In } // number | string
+
+
+// -
+// 7. 索引类型
+interface PIntf<T1, T2> {
+  name: T1;
+  age: T2
+}
+type ReadonlyP<T1, T2> = {
+  readonly [P in keyof PIntf<T1, T2>]: PIntf<T1, T2>[P];
+}
+type OptionalP<T1, T2> = {
+  [P in keyof PIntf<T1, T2>]?: PIntf<T1, T2>[P];
+}
+type NullablePerson<T1, T2> = {
+  [P in keyof PIntf<T1, T2>]: null;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// 一个存取器类型
+interface Proxy<T> {
+  get(): T;
+  set(newVal: T): void;
+}
+// 一个封装，用来包装类型的属性，使用get/set
+type Proxify<T> = {
+  [P in keyof T]: Proxy<T[P]>;
+}
+
+function proxify<T>(o: T): Proxify<T> | T {
+  // 根据 Proxify<T>
+  /**
+   * {
+   *   name: {
+   *     get(),
+   *     set() 
+   *   }
+   * }
+   */
+  if (o instanceof Object) {
+    let res = {}
+    // let res = {} as (Proxify<T> | T)
+    for (const key in o) {
+      let val: T[keyof T] = o[key]
+      let property: Proxy<T[keyof T]> = {
+        get() {
+            return val
+        },
+        set(newVal){
+          val = newVal
+        }
+      }
+      Object.defineProperty(res, key, property)
+    }
+    return res
+  }
+  return o
+  
+}
+let objEp = {
+  age: 20,
+  name: 'zs'
+}
+let proxyProps = proxify(objEp);
+
+console.log('age', proxyProps.age);
+
+
+// function unproxify<T>(t: Proxify<T>): T {
+//   let result = {} as T;
+//   for (const k in t) {
+//       result[k] = t[k].get();
+//   }
+//   return result;
+// }
+
+// let originalProps = unproxify(proxyProps);
+
+
+type MyTpKeyReturn<T> = {
+  get(): T;
+  set(val: T): void;
+}
+
+type MyTp<T> = {
+  name: MyTpKeyReturn<T>
+}
+
+function getNNN<T>(o: T): MyTp<T>  {
+  return {
+    name: {
+      get() {
+        return o
+      },
+      set(o) {}
+    }
+  }
+}
+
+let nnn = getNNN({ name: 'zs' });

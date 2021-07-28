@@ -1,0 +1,89 @@
+type Proxy<T> = {
+  get(): T;
+  set(value: T): void;
+}
+// 一个封装，用来包装类型的属性，使用get/set
+type Proxify<T> = {
+  [P in keyof T]: Proxy<T[P]>;
+  // number
+  /* toString: {
+      get(): T;
+      set(value: T): void;
+    }
+  */
+}
+
+// 解题
+// 1. 简化分析
+type MyTI<T> = {
+  [p in keyof T]: {
+    get(): T
+  }
+} 
+let nnn: MyTI<{ name: string }> = {
+  name: {
+    get: ()=>{
+      return { name: 'zs' }
+    }
+  }
+}
+
+// 2. 抽取
+type MyTpKeyReturn<T> = {
+  get(): T;
+  set(val: T): void;
+}
+
+type MyTp<T> = {
+  [p in keyof T]: MyTpKeyReturn<T>
+}
+let nnn: MyTp<{ name: string }> = {
+  name: {
+    get() {
+      return { name: 'zs' }
+    },
+    set(val: { name: 'zs' }) {
+    }
+  }
+}
+
+// 3. 再次简化分析
+type MyTp<T> = {
+  name: MyTpKeyReturn<T>
+}
+
+let nnn: MyTp<{ name: string }> = {
+  name: {
+    get() {
+      return { name: 'zs' }
+    },
+    set(val: { name: 'zs' }) {
+    }
+  }
+}
+
+function getNNN<T>(o: T): MyTp<T>  {
+  return {
+    name: {
+      get() {
+        return o
+      },
+      set(o) {}
+    }
+  }
+}
+
+let obj = {
+  name: 'zs',
+  age: 18
+}
+
+obj = {
+  _name: 'zs',
+  get name() {
+    return this._name
+  }
+  set name(newVal) {
+    this._name = newVal
+  }
+}
