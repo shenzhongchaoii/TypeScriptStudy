@@ -1842,25 +1842,15 @@ console.log(testC[getClassNameSymbol]()); // Symbol();
 
 |     方法/属性      |                             说明                             | 例子                                                         |
 | :----------------: | :----------------------------------------------------------: | :----------------------------------------------------------- |
-<<<<<<< HEAD
 |  Symbol.for(key)   | 根据字符串key值（即symbol的描述，key值）到运行时的全局symbol注册表查找对应的symbol，找到则返回，否则返回新创建的symbol | ![](/src/assets/image-20210726150939540.png)                 |
 | Symbol.keyFor(sym) | 根据具体symbol到全局symbol注册表查找对应的key值，找到则返回字符串类型值，否则返回undefined | ![image-20210726151006405](/src/assets/image-20210726151006405.png) |
-=======
-|  Symbol.for(key)   | 根据字符串key值（即symbol的描述，key值）到运行时的全局symbol注册表查找对应的symbol，找到则返回，否则返回新创建的symbol | ![image-20210726150939540](C:\Users\AS\AppData\Roaming\Typora\typora-user-images\image-20210726150939540.png) |
-| Symbol.keyFor(sym) | 根据具体symbol到全局symbol注册表查找对应的key值，找到则返回字符串类型值，否则返回undefined | ![image-20210726151006405](C:\Users\AS\AppData\Roaming\Typora\typora-user-images\image-20210726151006405.png) |
->>>>>>> 68f1e5f33c719203d12c2f9448b9124a93382648
 
 #### 迭代Symbols
 
 |      方法/属性       |                             说明                             | 例子                                                         |
 | :------------------: | :----------------------------------------------------------: | ------------------------------------------------------------ |
-<<<<<<< HEAD
 |   Symbol.iterator    | 被 **<u>for-of</u>** 语句调用。返回对象的默认迭代器（包括有默认迭代器行为的内置类型及自定义迭代器） | ![image-20210726153653272](/src/assets/image-20210726153653272.png) |
 | Symbol.asyncIterator | ES9新增，被 **<u>for-await-of</u>** 语句调用。返回对象的默认异步迭代器（必须带有Symbol.asyncIterator属性） | ![image-20210729143115146](/src/assets/image-20210729143115146.png) |
-=======
-|   Symbol.iterator    | 被 **<u>for-of</u>** 语句调用。返回对象的默认迭代器（包括有默认迭代器行为的内置类型及自定义迭代器） | ![image-20210726153653272](C:\Users\AS\AppData\Roaming\Typora\typora-user-images\image-20210726153653272.png) |
-| Symbol.asyncIterator | ES9新增，被 **<u>for-await-of</u>** 语句调用。返回对象的默认异步迭代器（必须带有Symbol.asyncIterator属性） | ![image-20210729143115146](C:\Users\AS\AppData\Roaming\Typora\typora-user-images\image-20210729143115146.png) |
->>>>>>> 68f1e5f33c719203d12c2f9448b9124a93382648
 
 
 
