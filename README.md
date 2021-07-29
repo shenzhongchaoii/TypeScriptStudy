@@ -293,7 +293,7 @@ console.log(tname2!.toString())
 
 TypeScript的核心原则之一是对值所具有的结构进行类型检查（“鸭式辨型法”或“结构性子类型化”）
 
-接口在这里就是为这些类型命名和为代码或者第三方代码定义契约
+接口在这里就是为这些类型命名和为代码或者第三方代码定义契约，使用 interface 定义
 
 ```typescript
 // 定义一个接口，必须包含一个 string 类型的 label1、一个 string 类型的 label2，顺序无所谓
@@ -318,7 +318,7 @@ printLabel(labelObj); // { message: '使用定义的 LabelIntf 接口', label1: 
 
 ### 可选属性
 
-接口里（Object对象类型中也一样）的属性不全都是必需的，有些是只在某些条件下存在或者不充值。使用 <u>**?:**</u>
+接口里（Object对象类型中也一样）的属性不全都是必需的，有些是只在某些条件下存在或者不存在，可以在成员属性后缀加 <u>**?**</u>，表示该属性可选
 
 ```typescript
 // 另外还可以使用字符串签名
@@ -797,15 +797,13 @@ let t: BIntf = {
 
 函数是JavaScript的基础，可以用来实现抽象层、模拟类、信息隐藏和模块
 
-可以创建有名字的普通函数和匿名函数
+可以创建有名字的普通函数（、箭头函数）和匿名函数
 
 ```javascript
-function fn1() {
-
-}
-const fn2 = function() {
-  
-}
+type BaseFnType = () => void;
+function fn1(): void { }
+const fn2: BaseFnType = function() { }
+const fn3: BaseFnType = () => { }
 ```
 
 
@@ -930,13 +928,13 @@ const te = {
 let fnc = te.createFn();
 fnc(); // 此时 this 指向window对象（严格模式，this 为 undefined），Cannot read property 'val1' of undefined
 
-
 const te1 = {
     val1: 10,
     val2: 20,
     createFn: () => {
+        // 这里的this指向window对象
         return  () => {
-          // 由于createFn也用了箭头函数，此时的this执行createFn的{}
+          // 这里的this指向createFn
           console.log(this.val1 + this.val2);
         }
     }

@@ -1,10 +1,8 @@
 // 1. 普通函数与匿名函数
-function fn1() {
-
-}
-const fn2 = function() {
-
-}
+type BaseFnType = () => void;
+function fn1(): void { }
+const fn2: BaseFnType = function() { }
+const fn3: BaseFnType = () => { }
 
 // 闭包
 function foo() {
