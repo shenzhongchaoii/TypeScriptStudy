@@ -278,7 +278,6 @@ function proxify(o) {
      */
     if (o instanceof Object) {
         let res = {};
-        // let res = {} as (Proxify<T> | T)
         for (const key in o) {
             let val = o[key];
             let property = {
@@ -295,20 +294,12 @@ function proxify(o) {
     }
     return o;
 }
-let objEp = {
+let props = {
     age: 20,
     name: 'zs'
 };
-let proxyProps = proxify(objEp);
-console.log('age', proxyProps.age);
-function getNNN(o) {
-    return {
-        name: {
-            get() {
-                return o;
-            },
-            set(o) { }
-        }
-    };
-}
-let nnn = getNNN({ name: 'zs' });
+let proxyProps = proxify(props);
+// console.log('proxyProps', proxyProps);
+// console.log('age', proxyProps.age);
+// proxyProps.age = 30;
+// console.log('age', proxyProps.age);

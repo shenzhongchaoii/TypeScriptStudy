@@ -1,3 +1,7 @@
+---
+typora-root-url: ./
+---
+
 # TypeScript复习整理
 
 
@@ -41,21 +45,21 @@ const fn = (a: number, b: number) => a + b;
 
 ### 类型
 
-| 类型            | 例子                             | 描述                                                        |
-| --------------- | -------------------------------- | ----------------------------------------------------------- |
-| number          | 1、-1、1.5                       | 任意浮点数                                                  |
-| string          | "hello"、'hello'、`hello`        | 任意字符串                                                  |
-| boolean         | true、false                      | 布尔值 true 或 false                                        |
-| 字面量          | 本身值，定义具体常量             | 值仅能为本身定义好的具体值                                  |
-| any             | 任何值                           | 任意类型                                                    |
-| unknown         | 未知类型                         | 类型安全的any                                               |
-| void            |                                  | 不是任何类型，变量值仅是undefined，通过用于没有返回值的函数 |
-| null、undefined | null、undefined                  | null、undefined                                             |
-| never           |                                  | 永不存在值的类型                                            |
-| object          | { test: "hello world" }          | 任意 JavaScript 对象                                        |
-| array           | [ 1, 2, 3 ]                      | 任意 JavaScript 数组（元素类型单一）                        |
-| tuple           | [ 1, "1", "2", 2 ]               | 任意 JavaScript 数组（元素类型多种，固定长度）              |
-| enum            | enum Color { Red,  Green, Blue } | 枚举                                                        |
+|      类型       |               例子               | 描述                                                      |
+| :-------------: | :------------------------------: | :-------------------------------------------------------- |
+|     number      |            1、-1、1.5            | 任意浮点数                                                |
+|     string      |    "hello"、'hello'、`hello`     | 任意字符串                                                |
+|     boolean     |           true、false            | 布尔值 true 或 false                                      |
+|     字面量      |       本身值，定义具体常量       | 值仅能为本身定义好的具体值                                |
+|       any       |              任何值              | 任意类型                                                  |
+|     unknown     |             未知类型             | 类型安全的any                                             |
+|      void       |             无返回值             | 不是任何类型，变量值仅是undefined，通常用于无返回值的函数 |
+| null、undefined |         null、undefined          | null、undefined                                           |
+|      never      |           没有执行终点           | 永不存在值的类型，通常用于抛出错误                        |
+|     object      |     { test: "hello world" }      | 任意 JavaScript 对象                                      |
+|      array      |           [ 1, 2, 3 ]            | 任意 JavaScript 数组（元素类型单一）                      |
+|      tuple      |        [ 1, "1", "2", 2 ]        | 任意 JavaScript 数组（元素类型多种，固定长度）            |
+|      enum       | enum Color { Red,  Green, Blue } | 枚举                                                      |
 
 #### Number
 
@@ -1832,15 +1836,92 @@ console.log(testC[getClassNameSymbol]()); // Symbol();
 
 
 
-众所周知的Symbols
+### 4个最常用Symbols
+
+#### 方法
+
+|     方法/属性      |                             说明                             | 例子                                                         |
+| :----------------: | :----------------------------------------------------------: | :----------------------------------------------------------- |
+|  Symbol.for(key)   | 根据字符串key值（即symbol的描述，key值）到运行时的全局symbol注册表查找对应的symbol，找到则返回，否则返回新创建的symbol | ![](/src/assets/image-20210726150939540.png)                 |
+| Symbol.keyFor(sym) | 根据具体symbol到全局symbol注册表查找对应的key值，找到则返回字符串类型值，否则返回undefined | ![image-20210726151006405](/src/assets/image-20210726151006405.png) |
+
+#### 迭代Symbols
 
 |      方法/属性       |                             说明                             | 例子                                                         |
-| :------------------: | :----------------------------------------------------------: | :----------------------------------------------------------- |
-|   Symbol.for(key)    | 根据字符串key值（即symbol的描述，key值）到运行时的全局symbol注册表查找对应的symbol，找到则返回，否则返回新创建的symbol | ![image-20210726150939540](C:\Users\AS\AppData\Roaming\Typora\typora-user-images\image-20210726150939540.png) |
-|  Symbol.keyFor(sym)  | 根据具体symbol到全局symbol注册表查找对应的key值，找到则返回字符串类型值，否则返回undefined | ![image-20210726151006405](C:\Users\AS\AppData\Roaming\Typora\typora-user-images\image-20210726151006405.png) |
-|   Symbol.iterator    | 方法，被`for-of`语句调用。返回对象的默认迭代器（包括有默认迭代器行为的内置类型及自定义迭代器）<br/>（函数生成器https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/function*） | ![image-20210726153653272](C:\Users\AS\AppData\Roaming\Typora\typora-user-images\image-20210726153653272.png) |
-| Symbol.asyncIterator | 方法，被`for-await-of`语句调用。返回对象的默认异步迭代器（必须带有Symbol.asyncIterator属性） |                                                              |
-|                      |                                                              |                                                              |
+| :------------------: | :----------------------------------------------------------: | ------------------------------------------------------------ |
+|   Symbol.iterator    | 被 **<u>for-of</u>** 语句调用。返回对象的默认迭代器（包括有默认迭代器行为的内置类型及自定义迭代器） | ![image-20210726153653272](/src/assets/image-20210726153653272.png) |
+| Symbol.asyncIterator | ES9新增，被 **<u>for-await-of</u>** 语句调用。返回对象的默认异步迭代器（必须带有Symbol.asyncIterator属性） | ![image-20210729143115146](/src/assets/image-20210729143115146.png) |
+
+
+
+### 生成器与迭代器
+
+#### Generator
+
+Generator，生成器对象是由一个**<u>生成器函数 function*</u>** 返回的
+
+```typescript
+function* generator(i: number) {
+  while(true) {
+    yield i++;
+  }
+}
+let gen = generator(1);
+console.log(gen.next()); // { value: 1, done: false }
+console.log(gen.next()); // { value: 2, done: false }
+// 使用 return() 返回结束值，并结束生成器
+console.log(gen.return()); // { value: undefined, done: true }
+console.log(gen.next()); // { value: undefined, done: true }
+```
+
+**<u>next()</u>** 方法返回一个对象，这个对象包含两个属性：**<u>value 和 done</u>**，**<u>value</u>** 属性表示本次 **<u>yield</u>** 表达式的返回值，**<u>done</u>** 属性为布尔类型，表示生成器后续是否还有 **<u>yield</u>** 语句，即生成器函数是否已经执行完毕并返回
+
+**<u>return()</u>** 方法结束生成器，并返回生成器函数执行完毕时返回的对象 **<u>{ value: undefined, done: true }</u>**
+
+**<u>throw()</u>** 方法向生成器抛出一个错误
+
+#### 可迭代性
+
+当一个对象实现了 **<u>Symbol.iterator</u>** 属性时，我们认为它是可迭代的。 一些内置的类型如 Array、Map、Set、String、Int32Array、Uint32Array 等以及自定义迭代器都已经实现了各自的  **<u>Symbol.iterator</u>**  。 对象上的 **<u>Symbol.iterator</u>** 函数负责返回供迭代的值
+
+##### for...of VS for...in
+
+1. for...of 和 for...in 均可迭代一个列表，但是迭代的值却不同，for...in 迭代的是对象的 key 的列表，for...of 迭代对象的key对应的value
+2. for...in 可以操作任何对象，for...of 只能操作可以迭代的对象
+
+```typescript
+let myAr = ['val1', 'val2', 'val3'];
+for (const key in myAr) {
+  console.log(key); // 0 1 2
+}
+for (const iterator of myAr) {
+  console.log(iterator); // val1 val2 val3
+}
+
+let myOb = {
+  'key1': 'val1',
+  'key2': 'val2',
+  'key3': 'val3'
+}
+for (const key in myOb) {
+  console.log(key); // key1 key2 key3
+}
+// 不是 iterable，无法使用 for...of，直接报错
+// for (const iterator of myOb) {
+//   console.log(iterator);
+// }
+
+let mySt = 'val'
+// string 类型，一切皆对象
+for (const key in mySt) {
+  console.log(key); // 0 1 2
+}
+for (const iterator of mySt) {
+  console.log(iterator); // v a l
+}
+```
+
+
 
 
 
@@ -2364,3 +2445,4 @@ TypeScript 2.8在`lib.d.ts`里增加了一些预定义的有条件类型：
 - `NonNullable<T>` -- 从`T`中剔除`null`和`undefined`；
 - `ReturnType<T>` -- 获取函数返回值类型；
 - `InstanceType<T>` -- 获取构造函数类型的实例类型；
+

@@ -488,17 +488,35 @@ type NullablePerson<T1, T2> = {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // 一个存取器类型
-interface Proxy<T> {
+interface Accessor<T> {
   get(): T;
   set(newVal: T): void;
 }
-// 一个封装，用来包装类型的属性，使用get/set
+
+// 一个封装，用来包装类型的属性，使用getter/setter
 type Proxify<T> = {
-  [P in keyof T]: Proxy<T[P]>;
+  [P in keyof T]: Accessor<T[P]>;
 }
 
-function proxify<T>(o: T): Proxify<T> | T {
+
+function proxify<T>(o: T):  Proxify<T> | T {
   // 根据 Proxify<T>
   /**
    * {
@@ -509,11 +527,10 @@ function proxify<T>(o: T): Proxify<T> | T {
    * }
    */
   if (o instanceof Object) {
-    let res = {}
-    // let res = {} as (Proxify<T> | T)
+    let res = {} as (Proxify<T> | T)
     for (const key in o) {
       let val: T[keyof T] = o[key]
-      let property: Proxy<T[keyof T]> = {
+      let property: Accessor<T[keyof T]> = {
         get() {
             return val
         },
@@ -526,46 +543,13 @@ function proxify<T>(o: T): Proxify<T> | T {
     return res
   }
   return o
-  
 }
-let objEp = {
+let props = {
   age: 20,
   name: 'zs'
 }
-let proxyProps = proxify(objEp);
-
-console.log('age', proxyProps.age);
-
-
-// function unproxify<T>(t: Proxify<T>): T {
-//   let result = {} as T;
-//   for (const k in t) {
-//       result[k] = t[k].get();
-//   }
-//   return result;
-// }
-
-// let originalProps = unproxify(proxyProps);
-
-
-type MyTpKeyReturn<T> = {
-  get(): T;
-  set(val: T): void;
-}
-
-type MyTp<T> = {
-  name: MyTpKeyReturn<T>
-}
-
-function getNNN<T>(o: T): MyTp<T>  {
-  return {
-    name: {
-      get() {
-        return o
-      },
-      set(o) {}
-    }
-  }
-}
-
-let nnn = getNNN({ name: 'zs' });
+let proxyProps = proxify(props);
+// console.log('proxyProps', proxyProps);
+// console.log('age', proxyProps.age);
+// proxyProps.age = 30;
+// console.log('age', proxyProps.age);
