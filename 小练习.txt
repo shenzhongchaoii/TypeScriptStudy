@@ -1,0 +1,255 @@
+1.
+type StringType = string; // string 类型
+type StringTypeResolver = () => string; // 返回值为 string 的 function 类型
+type StringTypeOrResolver = String | StringTypeResolver;
+
+function getString(str: StringTypeOrResolver): StringType {
+  // 1. typeof 类型保护定义
+  // if (typeof str === 'string') { // typeof str !== 'function'
+  //   return str;
+  // }
+
+  // 2. instanceof 类型保护定义
+  // if (!(str instanceof Object)) {
+  //   return str;
+  // }
+
+  // 3. 类型谓词，用户自定义类型保护
+  if (isStringType(str)) {
+    return str;
+  }
+
+  // 猜猜这个
+  // if (str as StringType) {
+  //   return (str as StringType);
+  // }
+
+  return (str as StringTypeResolver)();
+}
+
+console.log(getString('hello'));
+console.log(getString(()=>'world'));
+
+
+
+// ------------------------
+2. 
+interface Objj<T> {
+  [key: string]: T;
+}
+let keys: keyof Objj<number>;
+let value: Objj<number>['foo'];
+
+
+
+// ------------------------
+3. 
+interface In {
+  name: string,
+  length: number
+}
+
+type TypeExample1 = keyof In;
+type TypeExample2 = keyof In[];
+type TypeExample3 = keyof { [prop:string]: In };
+
+
+
+// -----------------------
+4.
+interface PIntf<T1, T2> {
+  name: T1;
+  age: T2
+}
+type P<T1, T2> = {
+  readonly [P in keyof PIntf<T1, T2>]: PIntf<T1, T2>[P];
+}
+let zs: P<string, number> = {
+  name: '张三',
+  age: 20
+}
+let pname = getN(zs, 'name');
+let page = getN(zs, 'age');
+console.log(pname);
+console.log(page);
+
+
+
+// ------------------------
+5. 实现一个简化版的 defineProps
+// 一个存取器类型
+interface Accessor<T> {
+  get(): T;
+  set(newVal: T): void;
+}
+
+// 一个封装，用来包装类型的属性，使用getter/setter
+type Proxify<T> = {
+  [P in keyof T]: Accessor<T[P]>;
+}
+
+
+function proxify<T>(o: T):  Proxify<T> | T {
+  // 根据 Proxify<T>
+  /**
+   * {
+   *   name: {
+   *     get(),
+   *     set() 
+   *   }
+   * }
+   */
+  if (o instanceof Object) {
+    let res = {} as (Proxify<T> | T)
+    for (const key in o) {
+      let val: T[keyof T] = o[key]
+      let property: Accessor<T[keyof T]> = {
+        get() {
+            return val
+        },
+        set(newVal){
+          val = newVal
+        }
+      }
+      Object.defineProperty(res, key, property)
+    }
+    return res
+  }
+  return o
+}
+let props = {
+  age: 20,
+  name: 'zs'
+}
+let proxyProps = proxify(props);
+// console.log('proxyProps', proxyProps);
+// console.log('age', proxyProps.age);
+// proxyProps.age = 30;
+// console.log('age', proxyProps.age);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+type Proxy<T> = {
+  get(): T;
+  set(value: T): void;
+}
+// 一个封装，用来包装类型的属性，使用get/set
+type Proxify<T> = {
+  [P in keyof T]: Proxy<T[P]>;
+  // number
+  /* toString: {
+      get(): T;
+      set(value: T): void;
+    }
+  */
+}
+
+// 解题
+// 1. 简化分析
+type MyTI<T> = {
+  [p in keyof T]: {
+    get(): T
+  }
+} 
+let nnn: MyTI<{ name: string }> = {
+  name: {
+    get: ()=>{
+      return { name: 'zs' }
+    }
+  }
+}
+
+// 2. 抽取
+type MyTpKeyReturn<T> = {
+  get(): T;
+  set(val: T): void;
+}
+
+type MyTp<T> = {
+  [p in keyof T]: MyTpKeyReturn<T>
+}
+let nnn: MyTp<{ name: string }> = {
+  name: {
+    get() {
+      return { name: 'zs' }
+    },
+    set(val: { name: 'zs' }) {
+    }
+  }
+}
+
+// 3. 再次简化分析
+type MyTpKeyReturn<T> = {
+  get(): T;
+  set(val: T): void;
+}
+
+type MyTp<T> = {
+  // [P in keyof T]: MyTpKeyReturn<T[keyof T]>
+  name: MyTpKeyReturn<string>
+}
+
+function getNNN<T>(o: T): MyTp<T>  {
+  let res: MyTp<T> = {
+    name: {
+      get() {
+        return 'zs'
+      },
+      set(newVal) {
+
+      }
+    }
+  }
+  return res
+}
+
+let nnn = getNNN({ name: 'zs' });
+console.log('nnn', nnn.name)
+
+
+let obj = {
+  name: 'zs',
+  age: 18
+}
+
+obj = {
+  name: {
+    get() {
+      return this._name
+    },
+    set(newVal) {
+      this._name = newVal
+    }
+  },
+  age: {
+    get() {
+      return this._age
+    },
+    set(newVal) {
+      this._age = newVal
+    }
+  }
+}
+
+obj = {
+  _name: 'zs',
+  get name() {
+    return this._name
+  }
+  set name(newVal) {
+    this._name = newVal
+  }
+}
