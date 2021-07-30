@@ -1,9 +1,7 @@
 "use strict";
-// 1. 普通函数与匿名函数
-function fn1() {
-}
-const fn2 = function () {
-};
+function fn1() { }
+const fn2 = function () { };
+const fn3 = () => { };
 // 闭包
 function foo() {
     var val = 1;

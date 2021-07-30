@@ -909,9 +909,9 @@ baz('1', '2', '3', '4', '5')
 
 ### this 和箭头函数
 
-普通函数的 this 指向运行时所在的作用域，即this 对象的指向随着使用的作用域不同而不同
+普通函数的 this 指向运行时所在的函数执行作用域，在全局作用域中，this指向 window （严格模式下，指向 window 对象的 this 为 undefined），即this 对象的指向随着使用的作用域不同而不同，谁调用就指向谁
 
-箭头函数的 this 指向绑定定义时所在的作用域，this 对象固定不变
+箭头函数的 this 指向绑定定义（生成）时所在的作用域，而并非是在执行过程中绑定的，this 对象固定不变
 
 ```JavaScript
 // .js 文件
@@ -919,42 +919,46 @@ const te = {
     val1: 10,
     val2: 20,
     createFn: function () {
+        console.log(this); // 这里的 this 指向 te（严格模式同样）
         return function () {
-            console.log(this.val1 + this.val2);
+            console.log(this); // 这里的 this 指向 window （严格模式 undefined）
+            console.log(this.val1); // undefined（严格模式 Cannot read property 'val1' of undefined，不再往下执行）
+            console.log(this.val1 + this.val2); // 被中断了（严格模式下为 undefined + undefined = NaN）
         }
     }
 }
-
 let fnc = te.createFn();
-fnc(); // 此时 this 指向window对象（严格模式，this 为 undefined），Cannot read property 'val1' of undefined
+fnc();
 
 const te1 = {
     val1: 10,
     val2: 20,
     createFn: () => {
-        // 这里的this指向window对象
+        console.log(this); // 这里的 this 指向 window（严格模式同样）
         return  () => {
-          // 这里的this指向createFn
-          console.log(this.val1 + this.val2);
+          console.log(this); // 这里的 this 指向 window（严格模式同样）
+          console.log(this.val1); // undefined（严格模式同样）
+          console.log(this.val1 + this.val2); // undefined + undefined = NaN（严格模式同样）
         }
     }
 }
-
 let fnc1 = te1.createFn();
-fnc1(); // NaN
+fnc1();
 
 const te2 = {
-  val1: 10,
-  val2: 20,
-  createFn: function() {
-      return  () => {
-        console.log(this.val1 + this.val2);
-      }
-  }
+    val1: 10,
+    val2: 20,
+    createFn: function() {
+        console.log(this); // 这里的 this 指向 te（严格模式同样）
+        return  () => {
+            console.log(this); // 这里的 this 指向 te（严格模式同样）
+            console.log(this.val1); // 10（严格模式同样）
+            console.log(this.val1 + this.val2); // 30（严格模式同样）
+        }
+    }
 }
-
 let fnc2 = te2.createFn();
-fnc2(); // 30
+fnc2();
 ```
 
 #### this 作为参数
@@ -2443,4 +2447,3 @@ TypeScript 2.8在`lib.d.ts`里增加了一些预定义的有条件类型：
 - `NonNullable<T>` -- 从`T`中剔除`null`和`undefined`；
 - `ReturnType<T>` -- 获取函数返回值类型；
 - `InstanceType<T>` -- 获取构造函数类型的实例类型；
-
